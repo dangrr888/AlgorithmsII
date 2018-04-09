@@ -3,22 +3,21 @@ import java.util.Iterator;
 public class Bag<T> implements Iterable<T> {
 
 	private class Node {
-		
-		public T val;
 		public Node next;
+		public T val;
 		
-		public Node(T val, Node next) {
+		public Node (T val, Node next) {
 			this.val = val;
 			this.next = next;
 		}
 	}
-
-	private class ForwardNodeIterator implements Iterator<T> {
-
+	
+	private class ForwardIterator implements Iterator<T>
+	{
 		private Node n;
-
-		public ForwardNodeIterator() {
-			this.n = root;
+		
+		public ForwardIterator() {
+			this.n = head;
 		}
 		
 		@Override
@@ -29,35 +28,34 @@ public class Bag<T> implements Iterable<T> {
 		@Override
 		public T next() {
 			if (!this.hasNext()) {
-				throw new IllegalStateException();
+				throw new IllegalStateException("Invalid iterator.");
 			}
 			
-			final T retVal = this.n.val;
+			final T ret = this.n.val;
 			this.n = this.n.next;
-			
-			return retVal;
-		}		
+			return ret;
+		}
 	}
 	
-	private Node root;
+	private Node head;
 	private int sz;
 	
 	public Bag() {
-		this.root = null;
+		this.head = null;
 		this.sz = 0;
 	}
 	
 	public void add(T val) {
-		this.root = new Node(val, this.root);
+		this.head = new Node(val, this.head);
 		++this.sz;
 	}
-
-	public int sz() {
+	
+	public int size() {
 		return this.sz;
-	}
+	}	
 	
 	@Override
-	public Iterator<T> iterator() {
-		return new ForwardNodeIterator();
+	public Iterator<T> iterator() {	
+		return new ForwardIterator();
 	}
 }
