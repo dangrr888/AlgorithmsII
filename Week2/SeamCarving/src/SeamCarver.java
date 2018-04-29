@@ -13,11 +13,22 @@ public class SeamCarver {
 	 *   construct this SeamCarver object.
 	 */
 	public SeamCarver(Picture picture) {
+		if (picture == null) {
+			throw new IllegalArgumentException();
+		}
 		throw new UnsupportedOperationException();
 	}
 	
+	private boolean validColumnIndex(int x) {
+		return x >= 0 && x < this.width();
+	}
+	
+	private boolean validRowIndex(int y) {
+		return y >= 0 && y < this.height();
+	}
+	
 	private boolean validCoordinates(int x, int y) {
-		return x >= 0 && x < this.width() && y >= 0 && y < this.height();
+		return this.validColumnIndex(x) && this.validRowIndex(y);
 	}
 	
 	/*
@@ -69,6 +80,10 @@ public class SeamCarver {
 	 *   location.
 	 */
 	public double energy(int x, int y) {
+		if (!this.validCoordinates(x, y)) {
+			throw new IllegalArgumentException();
+		}
+		
 		throw new UnsupportedOperationException();
 	}
 	
@@ -107,6 +122,33 @@ public class SeamCarver {
 	 * @param seam The horizontal seam to be removed.
 	 */
 	public void removeHorizontalSeam(int[] seam) {
+		if (this.picture.height() < 2) {
+			throw new IllegalArgumentException();
+		}
+
+		if (seam == null) {
+			throw new IllegalArgumentException();
+		}
+
+		final int length = seam.length;
+		if (length != this.picture.width()) {
+			throw new IllegalArgumentException();
+		}
+		
+		int lastRowIdx = seam[0];
+		for (int i = 0; i < length; ++i) {
+			final int rowIdx = seam[i];
+			if (!this.validRowIndex(rowIdx)) {
+				throw new IllegalArgumentException();
+			}
+			
+			if (Math.abs(lastRowIdx - rowIdx) > 1) {				
+				throw new IllegalArgumentException();
+			} else {
+				lastRowIdx = rowIdx;
+			}
+		}
+		
 		throw new UnsupportedOperationException();
 	}
 	
@@ -117,6 +159,33 @@ public class SeamCarver {
 	 * @param seam The vertical seam to be removed.
 	 */
 	public void removeVerticalSeam(int[] seam) {
+		if (this.picture.width() < 2) {
+			throw new IllegalArgumentException();
+		}
+		
+		if (seam == null) {
+			throw new IllegalArgumentException();
+		}
+
+		final int length = seam.length;
+		if (length != this.picture.height()) {
+			throw new IllegalArgumentException();
+		}
+
+		int lastColumnIdx = seam[0];
+		for (int i = 0; i < length; ++i) {
+			final int columnIdx = seam[i];
+			if (!this.validColumnIndex(seam[i])) {
+				throw new IllegalArgumentException();
+			}
+			
+			if (Math.abs(lastColumnIdx - columnIdx) > 1) {				
+				throw new IllegalArgumentException();
+			} else {
+				lastColumnIdx = columnIdx;
+			}			
+		}
+
 		throw new UnsupportedOperationException();
 	}
 }
