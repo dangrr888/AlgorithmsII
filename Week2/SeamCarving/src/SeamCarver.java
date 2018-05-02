@@ -1,8 +1,5 @@
 import java.awt.Color;
 
-import edu.princeton.cs.algs4.DijkstraSP;
-import edu.princeton.cs.algs4.DirectedEdge;
-import edu.princeton.cs.algs4.EdgeWeightedDigraph;
 import edu.princeton.cs.algs4.Picture;
 
 /*
@@ -14,12 +11,12 @@ public class SeamCarver {
 	private int width;
 	private int height;
 	private int pixels[][];
-	private double energy[][];
-	private double energyTo[][];
+	private double energySq[][];
+	private double energySqTo[][];
 	private int rowTo[][];
 	private int colTo[][];
 	private static final double BORDERENERGY = 1000.0;
-	
+	 
 	/*
 	 * @brief 1-parameter constructor.
 	 * @param picture The specified picture used to
@@ -31,23 +28,25 @@ public class SeamCarver {
 		}
 		
 		// Initialize data members
-		this.picture = picture;
-		this.width = this.picture.width();
-		this.height = this.picture.height();
+		this.width = picture.width();
+		this.height = picture.height();
+		this.picture = new Picture(this.width, this.height);
 		this.pixels = new int[this.height][];
-		this.energy = new double[this.height][];
-		this.energyTo = new double[this.height][];
+		this.energySq = new double[this.height][];
+		this.energySqTo = new double[this.height][];
 		this.rowTo = new int[this.height][];
 		this.colTo = new int[this.height][];
 		for (int row = 0; row < this.height; ++row) {
 			this.pixels[row] = new int[this.width];
-			this.energy[row] = new double[this.width];
-			this.energyTo[row] = new double[this.width];
+			this.energySq[row] = new double[this.width];
+			this.energySqTo[row] = new double[this.width];
 			this.rowTo[row] = new int[this.width];
 			this.colTo[row] = new int[this.width];
 			for (int col = 0; col < this.width; ++col) {
-				this.pixels[row][col] = this.picture.getRGB(col, row);
-				this.energyTo[row][col] = 0.0;
+				final int rgb = picture.getRGB(col, row);
+				this.picture.setRGB(col, row, rgb);
+				this.pixels[row][col] = rgb;
+				this.energySqTo[row][col] = 0.0;
 				this.rowTo[row][col] = row;
 				this.colTo[row][col] = col;
 			}
@@ -57,43 +56,48 @@ public class SeamCarver {
 		for (int row = 0; row < this.height; ++row) {
 			for (int col = 0; col < this.width; ++col) {
 				if (this.isBorderPixel(row, col)) {
-					this.energy[row][col] = SeamCarver.BORDERENERGY;
+					this.energySq[row][col] = SeamCarver.BORDERENERGY;
 				} else {
-					this.energy[row][col] = this.calculateEnergy(row, col);
+					this.energySq[row][col] = this.energySq(row, col);
 				}
 			}
 		}
 	}
-	
-	private double calculateEnergy(int row, int col) {
-		throw new UnsupportedOperationException();
+
+	private double deltaSqComponent(int rgb1, int rgb2) {
+		final int mask = 0xFF;
+		final int rdiff = (rgb1 >> 16 & mask) - (rgb2 >> 16 & mask);
+		final int gdiff = (rgb1 >> 8 & mask) - (rgb2 >> 8 & mask);
+		final int bdiff = (rgb1 & mask) - (rgb2 & mask);
+		
+		return rdiff*rdiff + gdiff*gdiff + bdiff*bdiff;		
 	}
 	
-	private int vertexFromIndices(int row, int col) {
-		throw new UnsupportedOperationException();
+	private double deltaXSq(int row, int col) {
+		final int lrgb = this.pixels[row][col-1];
+		final int rrgb = this.pixels[row][col+1];
+		return this.deltaSqComponent(lrgb, rrgb);
+	}
+
+	private double deltaYSq(int row, int col) {
+		final int urgb = this.pixels[row-1][col];
+		final int drgb = this.pixels[row+1][col];
+		return this.deltaSqComponent(urgb, drgb);		
 	}
 	
-	private Integer leftAdj(int v) {
+	private double energySq(int row, int col) {
+		return this.deltaXSq(row, col) + this.deltaYSq(row, col);
+	}
+
+	private Integer downAdj(int row, int col) {
 		throw new UnsupportedOperationException();
 	}
 
-	private Integer rightAdj(int v) {
-		throw new UnsupportedOperationException();
-	}
-
-	private Integer upAdj(int v) {
-		throw new UnsupportedOperationException();
-	}
-
-	private Integer downAdj(int v) {
+	private Integer downLeftAdj(int row, int col) {
 		throw new UnsupportedOperationException();
 	}
 	
-	private Integer downLeftAdj(int v) {
-		throw new UnsupportedOperationException();
-	}
-	
-	private Integer downRightAdj(int v) {
+	private Integer downRightAdj(int row, int col) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -142,11 +146,7 @@ public class SeamCarver {
 	public int height() {
 		return this.picture.height();
 	}
-	
-	private double deltasq(Color c1, Color c2) {
-		throw new UnsupportedOperationException();
-	}	
-	
+		
 	private boolean isBorderPixel(int row, int col) {
 		return row == 0 || row == this.height-1 ||
 			   col == 0 || col == this.width- 1;
@@ -171,7 +171,7 @@ public class SeamCarver {
 			throw new IllegalArgumentException();
 		}
 		
-		return this.energy[row][col];
+		return Math.sqrt(this.energySq[row][col]);
 	}
 	
 	/*
