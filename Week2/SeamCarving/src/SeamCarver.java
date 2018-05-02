@@ -1,5 +1,3 @@
-import java.awt.Color;
-
 import edu.princeton.cs.algs4.Picture;
 
 /*
@@ -16,7 +14,11 @@ public class SeamCarver {
 	private int rowTo[][];
 	private int colTo[][];
 	private static final double BORDERENERGY = 1000.0;
-	 
+	private final int SOURCEROW;
+	private final int SOURCECOL;
+	private final int TARGETROW;
+	private final int TARGETCOL;
+	
 	/*
 	 * @brief 1-parameter constructor.
 	 * @param picture The specified picture used to
@@ -62,6 +64,13 @@ public class SeamCarver {
 				}
 			}
 		}
+		
+		// row and col of the source and target virtual nodes.
+		// They never change throughout carving.
+		this.SOURCEROW = this.height;
+		this.SOURCECOL = this.width;
+		this.TARGETROW = this.height+1;
+		this.TARGETCOL = this.width+1;
 	}
 
 	private double deltaSqComponent(int rgb1, int rgb2) {
@@ -89,16 +98,28 @@ public class SeamCarver {
 		return this.deltaXSq(row, col) + this.deltaYSq(row, col);
 	}
 
-	private Integer downAdj(int row, int col) {
-		throw new UnsupportedOperationException();
+	private Integer downAdj(int row) {
+		if (row < this.height-1) {
+			return row+1;
+		}
+		
+		return null;
 	}
 
-	private Integer downLeftAdj(int row, int col) {
-		throw new UnsupportedOperationException();
+	private Integer leftAdj(int col) {
+		if (col > 0) {
+			return col-1;
+		}
+		
+		return null;
 	}
-	
-	private Integer downRightAdj(int row, int col) {
-		throw new UnsupportedOperationException();
+
+	private Integer rightAdj(int col) {
+		if (col < this.width-1) {
+			return col+1;
+		}
+		
+		return null;
 	}
 
 	private boolean validColumnIndex(int col) {
