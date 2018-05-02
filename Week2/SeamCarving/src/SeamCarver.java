@@ -66,7 +66,7 @@ public class SeamCarver {
 	}
 	
 	private double calculateEnergy(int row, int col) {
-		
+		throw new UnsupportedOperationException();
 	}
 	
 	private int vertexFromIndices(int row, int col) {
