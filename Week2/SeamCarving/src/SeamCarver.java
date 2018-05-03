@@ -18,6 +18,9 @@ public class SeamCarver {
 	private final int SOURCECOL;
 	private final int TARGETROW;
 	private final int TARGETCOL;
+	private int rowToTarget;
+	private int colToTarget;
+	private double energySqToTarget = Double.POSITIVE_INFINITY;
 	
 	/*
 	 * @brief 1-parameter constructor.
@@ -71,20 +74,8 @@ public class SeamCarver {
 		this.SOURCECOL = this.width;
 		this.TARGETROW = this.height+1;
 		this.TARGETCOL = this.width+1;
-		
-		// Initialize energySqTo, rowTo and colTo for first row and column
-		// to be that of the source.
-		for (int row = 0; row < this.height; ++row) {
-			this.energySqTo[row][0] = 0.0;
-			this.rowTo[row][0] = this.SOURCEROW;
-			this.colTo[row][0] = this.SOURCECOL;
-		}
-		
-		for (int col = 0; col < this.width; ++col) {
-			this.energySqTo[col][0] = 0.0;
-			this.rowTo[0][col] = this.SOURCEROW;
-			this.colTo[0][col] = this.SOURCECOL;
-		}		
+		this.rowToTarget = this.TARGETROW;
+		this.colToTarget = this.TARGETCOL;
 	}
 
 	private double deltaSqComponent(int rgb1, int rgb2) {
@@ -111,10 +102,10 @@ public class SeamCarver {
 	private double energySq(int row, int col) {
 		return this.deltaXSq(row, col) + this.deltaYSq(row, col);
 	}
-
+	
 	private Integer middleAdj(int row, int col) {
 		if (row < this.height-1) {
-			return row+1;
+			return col;
 		}
 		
 		return null;
@@ -139,17 +130,27 @@ public class SeamCarver {
 	private void relax(int row, int col) {		
 		final double newEnergySqTo = this.energySqTo[row][col] + this.energySq(row, col);
 		
-		final int adjRow = row + 1;
-		final Integer[] adjCols = {this.leftAdj(row, col), this.middleAdj(row, col), this.rightAdj(row, col)};
-
-		for (Integer adjCol : adjCols) {
-			if (adjCol != null) {
-				if (this.energySqTo[adjRow][adjCol] > newEnergySqTo) {
-					this.energySqTo[adjRow][adjCol] = newEnergySqTo;
-					this.rowTo[adjRow][adjCol] = row;
-					this.colTo[adjRow][adjCol] = col;
-				}
-			}			
+		if (row == this.height-1) {
+			// Pixel on bottom row
+			if (this.energySqToTarget > newEnergySqTo) {
+				this.energySqToTarget = newEnergySqTo;
+				this.rowToTarget = row;
+				this.colToTarget = col;
+			}
+		}
+		else {
+			final int adjRow = row + 1;
+			final Integer[] adjCols = {this.leftAdj(row, col), this.middleAdj(row, col), this.rightAdj(row, col)};
+	
+			for (Integer adjCol : adjCols) {
+				if (adjCol != null) {
+					if (this.energySqTo[adjRow][adjCol] > newEnergySqTo) {
+						this.energySqTo[adjRow][adjCol] = newEnergySqTo;
+						this.rowTo[adjRow][adjCol] = row;
+						this.colTo[adjRow][adjCol] = col;
+					}
+				}			
+			}
 		}
 	}
 	
@@ -251,7 +252,34 @@ public class SeamCarver {
 	 *   object.
 	 */
 	public int[] findVerticalSeam() {
-		throw new UnsupportedOperationException();
+
+		// Relax edges from the source.
+		for (int col = 0; col < this.width; ++col) {
+			this.energySqTo[0][col] = 0.0;
+			this.rowTo[0][col] = this.SOURCEROW;
+			this.colTo[0][col] = this.SOURCECOL;
+		}
+	
+		// Relax all remaining edges in topological order.
+		for (int row = 0; row < this.height; ++row) {
+			for (int col = 0; col < this.width; ++col) {
+				this.relax(row, col);
+			}
+		}
+		
+		final int[] seamCols = new int[this.height];
+		int row = this.rowToTarget;
+		int col = this.colToTarget;
+		int idx = this.height-1;
+		do {
+			seamCols[idx--] = col;
+			final int newRow = this.rowTo[row][col];
+			final int newCol = this.colTo[row][col];
+			row = newRow;
+			col = newCol;
+		} while (row != this.SOURCEROW);
+		
+		return seamCols;
 	}
 	
 	/*
