@@ -48,7 +48,7 @@ public class SeamCarver {
 				final int rgb = picture.getRGB(col, row);
 				this.picture.setRGB(col, row, rgb);
 				this.pixels[row][col] = rgb;
-				this.energySqTo[row][col] = 0.0;
+				this.energySqTo[row][col] = Double.POSITIVE_INFINITY;
 				this.rowTo[row][col] = row;
 				this.colTo[row][col] = col;
 			}
@@ -64,13 +64,27 @@ public class SeamCarver {
 				}
 			}
 		}
-		
+				
 		// row and col of the source and target virtual nodes.
 		// They never change throughout carving.
 		this.SOURCEROW = this.height;
 		this.SOURCECOL = this.width;
 		this.TARGETROW = this.height+1;
 		this.TARGETCOL = this.width+1;
+		
+		// Initialize energySqTo, rowTo and colTo for first row and column
+		// to be that of the source.
+		for (int row = 0; row < this.height; ++row) {
+			this.energySqTo[row][0] = 0.0;
+			this.rowTo[row][0] = this.SOURCEROW;
+			this.colTo[row][0] = this.SOURCECOL;
+		}
+		
+		for (int col = 0; col < this.width; ++col) {
+			this.energySqTo[col][0] = 0.0;
+			this.rowTo[0][col] = this.SOURCEROW;
+			this.colTo[0][col] = this.SOURCECOL;
+		}		
 	}
 
 	private double deltaSqComponent(int rgb1, int rgb2) {
@@ -98,7 +112,7 @@ public class SeamCarver {
 		return this.deltaXSq(row, col) + this.deltaYSq(row, col);
 	}
 
-	private Integer downAdj(int row) {
+	private Integer middleAdj(int row, int col) {
 		if (row < this.height-1) {
 			return row+1;
 		}
@@ -106,22 +120,39 @@ public class SeamCarver {
 		return null;
 	}
 
-	private Integer leftAdj(int col) {
-		if (col > 0) {
+	private Integer leftAdj(int row, int col) {
+		if (col > 0 && row < this.height-1) {
 			return col-1;
 		}
 		
 		return null;
 	}
 
-	private Integer rightAdj(int col) {
-		if (col < this.width-1) {
+	private Integer rightAdj(int row, int col) {
+		if (col < this.width-1 && row < this.height-1) {
 			return col+1;
 		}
 		
 		return null;
 	}
 
+	private void relax(int row, int col) {		
+		final double newEnergySqTo = this.energySqTo[row][col] + this.energySq(row, col);
+		
+		final int adjRow = row + 1;
+		final Integer[] adjCols = {this.leftAdj(row, col), this.middleAdj(row, col), this.rightAdj(row, col)};
+
+		for (Integer adjCol : adjCols) {
+			if (adjCol != null) {
+				if (this.energySqTo[adjRow][adjCol] > newEnergySqTo) {
+					this.energySqTo[adjRow][adjCol] = newEnergySqTo;
+					this.rowTo[adjRow][adjCol] = row;
+					this.colTo[adjRow][adjCol] = col;
+				}
+			}			
+		}
+	}
+	
 	private boolean validColumnIndex(int col) {
 		return col >= 0 && col < this.width();
 	}
