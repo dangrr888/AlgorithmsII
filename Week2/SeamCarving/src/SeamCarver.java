@@ -35,7 +35,7 @@ public class SeamCarver {
 	private Orientation orientation = Orientation.PORTRAIT;
 	
 	// Static constants
-	private static final double BORDERENERGY = 1000.0;
+	private static final double BORDERENERGYSQ = 1000.0*1000.0;
 
 	
 	// *************** PUBLIC STRUCTORS ***************
@@ -104,7 +104,7 @@ public class SeamCarver {
 			for (int col = 0; col < this.width; ++col) {		
 				if (this.isBorderPixel(row, col)) {
 					// Border pixels have fixed energy.
-					this.energySq[row][col] = SeamCarver.BORDERENERGY;
+					this.energySq[row][col] = SeamCarver.BORDERENERGYSQ;
 				} else {
 					// Non-border pixels
 					this.energySq[row][col] = this.energySq(row, col);
@@ -176,6 +176,9 @@ public class SeamCarver {
 	}
 	
 	private double energySq(int row, int col) {
+		if (this.isBorderPixel(row, col)) {
+			return SeamCarver.BORDERENERGYSQ;
+		}
 		return this.deltaXSq(row, col) + this.deltaYSq(row, col);
 	}
 	
@@ -556,7 +559,7 @@ public class SeamCarver {
 			// Recalculate energy for pixel (row, seam[row]-1).
 			if (this.validIndices(row, seam[row]-1)) {
 				if (this.isBorderPixel(row, seam[row]-1)) {
-					this.energySq[row][seam[row]-1] = SeamCarver.BORDERENERGY;
+					this.energySq[row][seam[row]-1] = SeamCarver.BORDERENERGYSQ;
 				} else {
 					this.energySq[row][seam[row]-1] = this.energySq(row, seam[row]-1);
 				}
@@ -566,7 +569,7 @@ public class SeamCarver {
 			// Recalculate energy for pixel (row, seam[row]).
 			if (this.validIndices(row, seam[row])) {
 				if (this.isBorderPixel(row, seam[row])) {
-					this.energySq[row][seam[row]] = SeamCarver.BORDERENERGY;
+					this.energySq[row][seam[row]] = SeamCarver.BORDERENERGYSQ;
 				} else {
 					this.energySq[row][seam[row]] = this.energySq(row, seam[row]);
 				}
