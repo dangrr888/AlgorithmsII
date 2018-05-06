@@ -5,6 +5,8 @@ import edu.princeton.cs.algs4.Picture;
  */
 public class SeamCarver {
 	
+	// *************** PRIVATE DATA MEMBERS ***************
+	
 	// Current Picture
 	private Picture picture;
 	private boolean redraw = false;
@@ -20,7 +22,6 @@ public class SeamCarver {
 	
 	// Constant information for terminal nodes
 	private final int SOURCECOL;
-	private final int TARGETROW;
 	private final int TARGETCOL;
 	
 	// Cached arrays for SP finding.
@@ -28,20 +29,17 @@ public class SeamCarver {
 	private int colTo[][];
 	
 	// Cached information on terminal Node for SP finding.
-	private int rowToTarget;
 	private int colToTarget;
-	private double energySqToTarget = Double.POSITIVE_INFINITY;
-
-	// Oreintation
-	private enum Orientation {
-		PORTRAIT,
-		LANDSCAPE
-	}
+	private double energySqToTarget;
+	
 	private Orientation orientation = Orientation.PORTRAIT;
 	
 	// Static constants
 	private static final double BORDERENERGY = 1000.0;
 
+	
+	// *************** PUBLIC STRUCTORS ***************
+	
 	/*
 	 * @brief 1-parameter constructor.
 	 * @param picture The specified picture used to
@@ -54,14 +52,17 @@ public class SeamCarver {
 		
 		// Initialize data members
 		
-		// Extent
+		// Dimensions
 		this.width = picture.width();
 		this.height = picture.height();
-
 		this.dim = Math.max(this.width, this.height);
+		
 		
 		// Picture
 		this.picture = new Picture(this.width, this.height);
+		
+		
+		// Transpositional arrays
 		
 		// RGB
 		this.pixels = new int[this.dim][];
@@ -73,8 +74,7 @@ public class SeamCarver {
 		// Paths
 		this.colTo = new int[this.dim][];
 		
-		// Initialize multi-dimensional arrays (dim x dim so can transpose in-place)
-		for (int row = 0; row < this.height; ++row) {
+		for (int row = 0; row < this.height; ++row) { // loop over rows
 			
 			// RGB
 			this.pixels[row] = new int[this.dim];
@@ -86,8 +86,7 @@ public class SeamCarver {
 			// Paths
 			this.colTo[row] = new int[this.dim];
 			
-			// Initialize columns of multi-dimensional arrays
-			for (int col = 0; col < this.width; ++col) {
+			for (int col = 0; col < this.width; ++col) { // loop over columns
 			
 				final int rgb = picture.getRGB(col, row);	
 
@@ -97,18 +96,12 @@ public class SeamCarver {
 				// RGB (copy picture)
 				this.pixels[row][col] = rgb;
 				
-				// EnergyTo (all start as infinity)
-				this.energySqTo[row][col] = Double.POSITIVE_INFINITY;
-				
-				// Path (Start with null paths)
-				this.colTo[row][col] = col;
-			}
-		}
+			}  // ! loop over rows
+		} // ! loop over columns
 		
 		// Calculate energy
 		for (int row = 0; row < this.height; ++row) {
-			for (int col = 0; col < this.width; ++col) {
-				
+			for (int col = 0; col < this.width; ++col) {		
 				if (this.isBorderPixel(row, col)) {
 					// Border pixels have fixed energy.
 					this.energySq[row][col] = SeamCarver.BORDERENERGY;
@@ -120,13 +113,46 @@ public class SeamCarver {
 		}
 				
 		// Terminal Nodes
-		// row and col of the source and target virtual nodes.
-		// They never change throughout carving.
+		
+		// row and col of the source and target virtual nodes,
+		// assigned values unachievable by regular pixels. They
+		// never change throughout seam-carving.
 		this.SOURCECOL = this.dim;
-		this.TARGETROW = this.TARGETCOL = this.dim+1;
-		this.rowToTarget = this.TARGETROW;
-		this.colToTarget = this.TARGETCOL;
+		this.TARGETCOL = this.dim+1;
+		
+		// Initialize cached path data.
+		this.initializeCachedPathData();
 	}	
+	
+	// *************** PRIVATE CLASSES ***************
+	
+	// Private enum to categorize picture orientation.
+	private enum Orientation {
+		PORTRAIT,
+		LANDSCAPE
+	}
+
+	// *************** PRIVATE METHODS ***************
+	
+	// Helper function to (re-)initialize cached path data.
+	private void initializeCachedPathData() {
+		for (int row = 0; row < this.height; ++row) {
+			for (int col = 0; col < this.width; ++col) {
+				
+				// EnergySqTo (all start as infinity).
+				this.energySqTo[row][col] = Double.POSITIVE_INFINITY;
+				
+				// Path (Start with null paths).
+				this.colTo[row][col] = col;	
+			}
+		}
+		
+		// Path to target node.
+		this.colToTarget = this.TARGETCOL;
+		this.energySqToTarget = Double.POSITIVE_INFINITY;
+	}
+	
+	// Helper functions to calculate energy.
 	
 	private double deltaSqComponent(int rgb1, int rgb2) {
 		final int mask = 0xFF;
@@ -153,6 +179,13 @@ public class SeamCarver {
 		return this.deltaXSq(row, col) + this.deltaYSq(row, col);
 	}
 	
+	private boolean isBorderPixel(int row, int col) {
+		return row == 0 || row == this.height-1 ||
+			   col == 0 || col == this.width-1;
+	}
+
+	// Helper functions to calculate column of adjacent pixels.
+	
 	private Integer middleAdj(int row, int col) {
 		if (row < this.height-1) {
 			return col;
@@ -177,24 +210,33 @@ public class SeamCarver {
 		return null;
 	}
 
+	// Helper function to relax edges of a specified pixel.
 	private void relax(int row, int col) {		
 		final double newEnergySqTo = this.energySqTo[row][col] + this.energySq(row, col);
 		
 		if (row == this.height-1) {
-			// Pixel on bottom row
+			// Pixel is on bottom row, check if path to target is optimal.
 			if (this.energySqToTarget > newEnergySqTo) {
+				
+				// Update path to target with most optimal hitherto.
 				this.energySqToTarget = newEnergySqTo;
-				this.rowToTarget = row;
 				this.colToTarget = col;
 			}
 		}
 		else {
+			// Check if paths to adjacent pixels are optimal.
+			
+			// Indices of adjacent pixels.
 			final int adjRow = row + 1;
-			final Integer[] adjCols = {this.leftAdj(row, col), this.middleAdj(row, col), this.rightAdj(row, col)};
+			final Integer[] adjCols = {this.leftAdj(row, col),
+					                   this.middleAdj(row, col),
+					                   this.rightAdj(row, col)};
 	
-			for (Integer adjCol : adjCols) {
+			for (Integer adjCol : adjCols) { // Loop over adjacent pixels
 				if (adjCol != null) {
+					// Check if path to adjacent pixel is optimal.
 					if (this.energySqTo[adjRow][adjCol] > newEnergySqTo) {
+						// Update path to adjacent pixel with most optimal hitherto.
 						this.energySqTo[adjRow][adjCol] = newEnergySqTo;
 						this.colTo[adjRow][adjCol] = col;
 					}
@@ -202,6 +244,9 @@ public class SeamCarver {
 			}
 		}
 	}
+	
+	// Helper functions to transpose a square matrix in-place.
+	// TODO - Convert to a generic function taking T[][]
 	
 	private void transpose(int[][] a) {
 		for (int row = 0; row < this.dim; ++row) {
@@ -224,19 +269,25 @@ public class SeamCarver {
 	}
 	
 	private void transpose() {
+		
+		// Transpose arrays.
 		this.transpose(this.pixels);
 		this.transpose(this.energySq);
 		this.transpose(energySqTo);
 		this.transpose(colTo);
 		
+		// Flip dimensions.
 		final int tmp = this.width;
 		this.width = this.height;
 		this.height = tmp;
 		
+		// Flip orientation.
 		this.orientation = (this.orientation == Orientation.PORTRAIT) 
 						   ? Orientation.LANDSCAPE
 						   : Orientation.PORTRAIT;
 	}
+
+	// Helper functions to validate pixel indices.
 	
 	private boolean validColumnIndex(int col) {
 		return col >= 0 && col < this.width;
@@ -249,7 +300,37 @@ public class SeamCarver {
 	private boolean validIndices(int row, int col) {
 		return this.validColumnIndex(col) && this.validRowIndex(row);
 	}
+
+	// Helper functions to shift array elements.
+	// TODO - convert to generic function deleteCol(T[] a)
+	
+	private void deleteCol(int[] a, int col) {
 		
+		final int len = a.length;
+		if (len == 0 || col == len-1) {
+			// No shift necessary.
+			return;
+		} else {
+			// Shift 'a' one column to the left from col+1
+			System.arraycopy(a, col+1, a, col, len-col);
+		}
+	}
+
+	private void deleteCol(double[] a, int col) {
+		
+		final int len = a.length;
+		if (len == 0 || col == len-1) {
+			// No shift necessary.
+			return;
+		} else {
+			// Shift 'a' one column to the left from col+1
+			System.arraycopy(a, col+1, a, col, len-col);
+		}
+	}
+
+	
+	// *************** PUBLIC METHODS ***************
+	
 	/*
 	 * @brief Return the current Picture associated with
 	 *   this SeamCraver object.
@@ -263,13 +344,16 @@ public class SeamCarver {
 			}
 
 			this.picture = new Picture(this.width, this.height);
+			
 			for (int row = 0; row < this.height; ++row) {
 				for (int col = 0; col < this.width; ++col) {
 					this.picture.setRGB(col, row, this.pixels[row][col]);
 				}
 			}
+			
 			this.redraw = false;
 		}
+		
 		return this.picture;
 	}
 	
@@ -296,11 +380,6 @@ public class SeamCarver {
 	public int height() {
 		return this.orientation == Orientation.PORTRAIT ? this.height : this.width;
 	}
-		
-	private boolean isBorderPixel(int row, int col) {
-		return row == 0 || row == this.height-1 ||
-			   col == 0 || col == this.width-1;
-	}
 	
 	/*
 	 * @brief Return the energy associated with the
@@ -321,9 +400,11 @@ public class SeamCarver {
 			throw new IllegalArgumentException();
 		}
 		
-		return this.orientation == Orientation.PORTRAIT
-				? Math.sqrt(this.energySq[row][col])
-				: Math.sqrt(this.energySq[col][row]);
+		final double eSq = this.orientation == Orientation.PORTRAIT
+						   ? this.energySq[row][col]
+						   : this.energySq[col][row];
+				
+		return Math.sqrt(eSq);
 	}
 	
 	/*
@@ -342,8 +423,7 @@ public class SeamCarver {
 			this.transpose();
 		}
 		
-		int[] seamRows = this.findVerticalSeam();		
-		this.transpose();
+		final int[] seamRows = this.findVerticalSeam();		
 		return seamRows;
 	}
 	
@@ -359,32 +439,37 @@ public class SeamCarver {
 	 */
 	public int[] findVerticalSeam() {
 		
+		// Check if transpose is required.
 		if (this.orientation != Orientation.PORTRAIT) {
 			this.transpose();
 		}
 
-		// Relax edges from the source.
+		// Relax edges directly connected to the source node (i.e., top row).
 		for (int col = 0; col < this.width; ++col) {
-			this.energySqTo[0][col] = 0.0;
+			this.energySqTo[0][col] = 0.0; // Source node has zero energy.
 			this.colTo[0][col] = this.SOURCECOL;
 		}
 	
-		// Relax all remaining edges in topological order.
+		// Relax all remaining edges in topological order,
+		// i.e., top row to bottom row.
 		for (int row = 0; row < this.height; ++row) {
 			for (int col = 0; col < this.width; ++col) {
 				this.relax(row, col);
 			}
 		}
 		
+		// Construct seam.
+		
 		final int[] seamCols = new int[this.height];
-		int row = this.rowToTarget;
+
+		int row = this.height-1; // bottom row
 		int col = this.colToTarget;
-		int idx = this.height-1; // bottom row
 		do {
-			seamCols[idx--] = col;
-			final int newCol = this.colTo[row][col];
-			col = newCol;
-		} while (idx >= 0);
+			seamCols[row] = col;
+			
+			col = this.colTo[row][col];
+			--row;
+		} while (row >= 0);
 		
 		return seamCols;
 	}
@@ -397,6 +482,7 @@ public class SeamCarver {
 	 */
 	public void removeHorizontalSeam(int[] seam) {
 		
+		// Check if transpose is necessary.
 		if (this.orientation == Orientation.PORTRAIT) {
 			this.transpose();
 		}
@@ -404,30 +490,6 @@ public class SeamCarver {
 		this.removeVerticalSeam(seam);
 	}
 	
-	private void deleteCol(int[] a, int col) {
-		
-		final int len = a.length;
-		if (len == 0 || col == len-1) {
-			// No shift necessary.
-			return;
-		} else {
-			// Shift 'a' one column to the left from col+1
-			System.arraycopy(a, col+1, a, col, len-col);
-		}
-	}
-
-	private void deleteCol(double[] a, int col) {
-		
-		final int len = a.length;
-		if (len == 0 || col == len-1) {
-			// No shift necessary.
-			return;
-		} else {
-			// Shift 'a' one column to the left from col+1
-			System.arraycopy(a, col+1, a, col, len-col);
-		}
-	}
-
 	/*
 	 * @brief Remove the next vertical seam from
 	 *   the current picture associated with this
@@ -436,10 +498,12 @@ public class SeamCarver {
 	 */
 	public void removeVerticalSeam(int[] seam) {
 		
+		// Check if transpose is necessary.
 		if (this.orientation != Orientation.PORTRAIT) {
 			this.transpose();
 		}
 
+		// Defensive coding for argument validation.
 		if (this.width() < 2) {
 			throw new IllegalArgumentException();
 		}
@@ -467,18 +531,29 @@ public class SeamCarver {
 			}			
 		}
 
-		// Shift Elements of arrays
+		// Remove seam.
 		for (int row = 0; row < this.height; ++row) {
 			this.deleteCol(pixels[row], seam[row]);
 			this.deleteCol(energySq[row], seam[row]);
 		}
 		
-		// Update dimensions
-		--this.width;
-		this.dim = Math.max(this.width, this.height);		
+		// Update dimensions.
 		
-		// Recalculate energies in columns (row, seam[row]-1) and (row, seam[row] (which was previously seam[row]+1))
+		--this.width;
+		
+		// Here update dim, so that when transposing,
+		// we only transpose the section of the matrix
+		// required, even though after we remove the first
+		// seam they will be larger than the subsequent
+		// values of dim.
+		this.dim = Math.max(this.width, this.height);
+		
+		// Recalculate energies in columns (row, seam[row]-1)
+		// and (row, seam[row] (which was previously seam[row]+1)),
+		// all other energies are unaffected.
 		for (int row = 0; row < this.height; ++row) {
+			
+			// Recalculate energy for pixel (row, seam[row]-1).
 			if (this.validIndices(row, seam[row]-1)) {
 				if (this.isBorderPixel(row, seam[row]-1)) {
 					this.energySq[row][seam[row]-1] = SeamCarver.BORDERENERGY;
@@ -487,6 +562,8 @@ public class SeamCarver {
 				}
 			}
 			
+			
+			// Recalculate energy for pixel (row, seam[row]).
 			if (this.validIndices(row, seam[row])) {
 				if (this.isBorderPixel(row, seam[row])) {
 					this.energySq[row][seam[row]] = SeamCarver.BORDERENERGY;
@@ -496,17 +573,8 @@ public class SeamCarver {
 			}
 		}
 
-		// Reinitialize cached data
-		for (int row = 0; row < this.height; ++row) {
-			for (int col = 0; col < this.width; ++ col) {
-				this.energySqTo[row][col] = Double.POSITIVE_INFINITY;
-				this.colTo[row][col] = col;
-			}
-		}
-		
-		this.rowToTarget = this.TARGETROW;
-		this.colToTarget = this.TARGETCOL;
-		this.energySqToTarget = Double.POSITIVE_INFINITY;
+		// Reinitialize cached path data.
+		this.initializeCachedPathData();
 		
 		// Set flag to regenerate picture on next request.
 		this.redraw = true;		

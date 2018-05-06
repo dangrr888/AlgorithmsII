@@ -1,4 +1,3 @@
-import java.util.Scanner;
 import java.util.Stack;
 
 import edu.princeton.cs.algs4.In;
