@@ -5,23 +5,36 @@ import edu.princeton.cs.algs4.Picture;
  */
 public class SeamCarver {
 	
+	// Current Picture
 	private final Picture picture;
+	private boolean redraw = false;
+	
+	// Dimensions
 	private int width;
 	private int height;
-	private int pixels[][];
-	private double energySq[][];
-	private double energySqTo[][];
-	private int rowTo[][];
-	private int colTo[][];
-	private static final double BORDERENERGY = 1000.0;
-	private final int SOURCEROW;
+	private int dim;
+	
+	// Arrays containing constant information
+	private final int pixels[][];
+	private final double energySq[][];
+	
+	// Constant information for terminal nodes
 	private final int SOURCECOL;
 	private final int TARGETROW;
 	private final int TARGETCOL;
+	
+	// Cached arrays for SP finding.
+	private double energySqTo[][];
+	private int colTo[][];
+	
+	// Cached information on terminal Node for SP finding.
 	private int rowToTarget;
 	private int colToTarget;
 	private double energySqToTarget = Double.POSITIVE_INFINITY;
-	
+
+	// Static constants
+	private static final double BORDERENERGY = 1000.0;
+
 	/*
 	 * @brief 1-parameter constructor.
 	 * @param picture The specified picture used to
@@ -33,26 +46,54 @@ public class SeamCarver {
 		}
 		
 		// Initialize data members
+		
+		// Extent
 		this.width = picture.width();
 		this.height = picture.height();
+
+		this.dim = Math.max(this.width, this.height);
+		
+		// Picture
 		this.picture = new Picture(this.width, this.height);
-		this.pixels = new int[this.height][];
-		this.energySq = new double[this.height][];
-		this.energySqTo = new double[this.height][];
-		this.rowTo = new int[this.height][];
-		this.colTo = new int[this.height][];
+		
+		// RGB
+		this.pixels = new int[this.dim][];
+		
+		// Energy
+		this.energySq = new double[this.dim][];
+		this.energySqTo = new double[this.dim][];
+		
+		// Paths
+		this.colTo = new int[this.dim][];
+		
+		// Initialize multi-dimensional arrays (dim x dim so can transpose in-place)
 		for (int row = 0; row < this.height; ++row) {
-			this.pixels[row] = new int[this.width];
-			this.energySq[row] = new double[this.width];
-			this.energySqTo[row] = new double[this.width];
-			this.rowTo[row] = new int[this.width];
-			this.colTo[row] = new int[this.width];
+			
+			// RGB
+			this.pixels[row] = new int[this.dim];
+			
+			// Energy
+			this.energySq[row] = new double[this.dim];
+			this.energySqTo[row] = new double[this.dim];
+		
+			// Paths
+			this.colTo[row] = new int[this.dim];
+			
+			// Initialize columns of multi-dimensional arrays
 			for (int col = 0; col < this.width; ++col) {
-				final int rgb = picture.getRGB(col, row);
+			
+				final int rgb = picture.getRGB(col, row);	
+
+				// Picture (copy source)
 				this.picture.setRGB(col, row, rgb);
+				
+				// RGB (copy picture)
 				this.pixels[row][col] = rgb;
+				
+				// EnergyTo (all start as infinity)
 				this.energySqTo[row][col] = Double.POSITIVE_INFINITY;
-				this.rowTo[row][col] = row;
+				
+				// Path (Start with null paths)
 				this.colTo[row][col] = col;
 			}
 		}
@@ -60,24 +101,26 @@ public class SeamCarver {
 		// Calculate energy
 		for (int row = 0; row < this.height; ++row) {
 			for (int col = 0; col < this.width; ++col) {
+				
 				if (this.isBorderPixel(row, col)) {
+					// Border pixels have fixed energy.
 					this.energySq[row][col] = SeamCarver.BORDERENERGY;
 				} else {
+					// Non-border pixels
 					this.energySq[row][col] = this.energySq(row, col);
 				}
 			}
 		}
 				
+		// Terminal Nodes
 		// row and col of the source and target virtual nodes.
 		// They never change throughout carving.
-		this.SOURCEROW = this.height;
-		this.SOURCECOL = this.width;
-		this.TARGETROW = this.height+1;
-		this.TARGETCOL = this.width+1;
+		this.SOURCECOL = this.dim;
+		this.TARGETROW = this.TARGETCOL = this.dim+1;
 		this.rowToTarget = this.TARGETROW;
 		this.colToTarget = this.TARGETCOL;
-	}
-
+	}	
+	
 	private double deltaSqComponent(int rgb1, int rgb2) {
 		final int mask = 0xFF;
 		final int rdiff = (rgb1 >> 16 & mask) - (rgb2 >> 16 & mask);
@@ -146,7 +189,6 @@ public class SeamCarver {
 				if (adjCol != null) {
 					if (this.energySqTo[adjRow][adjCol] > newEnergySqTo) {
 						this.energySqTo[adjRow][adjCol] = newEnergySqTo;
-						this.rowTo[adjRow][adjCol] = row;
 						this.colTo[adjRow][adjCol] = col;
 					}
 				}			
@@ -154,18 +196,49 @@ public class SeamCarver {
 		}
 	}
 	
+	private void transpose(int[][] a) {
+		for (int row = 0; row < this.dim; ++row) {
+			for (int col = 0; col < this.dim; ++col) {
+				final int tmp = a[row][col];
+				a[row][col] = a[col][row];
+				a[col][row] = tmp;
+			}
+		}
+	}
+
+	private void transpose(double[][] a) {
+		for (int row = 0; row < this.dim; ++row) {
+			for (int col = 0; col < this.dim; ++col) {
+				final double tmp = a[row][col];
+				a[row][col] = a[col][row];
+				a[col][row] = tmp;
+			}
+		}
+	}
+	
+	private void transpose() {
+		this.transpose(this.pixels);
+		this.transpose(this.energySq);
+		this.transpose(energySqTo);
+		this.transpose(colTo);
+		
+		final int tmp = this.width;
+		this.width = this.height;
+		this.height = tmp;
+	}
+	
 	private boolean validColumnIndex(int col) {
-		return col >= 0 && col < this.width();
+		return col >= 0 && col < this.width;
 	}
 	
 	private boolean validRowIndex(int row) {
-		return row >= 0 && row < this.height();
+		return row >= 0 && row < this.height;
 	}
 	
 	private boolean validIndices(int row, int col) {
 		return this.validColumnIndex(col) && this.validRowIndex(row);
 	}
-	
+		
 	/*
 	 * @brief Return the current Picture associated with
 	 *   this SeamCraver object.
@@ -173,6 +246,14 @@ public class SeamCarver {
 	 *   this SeamCraver object.
 	 */
 	public Picture picture() {
+		if (this.redraw) {
+			for (int row = 0; row < this.height; ++row) {
+				for (int col = 0; col < this.width; ++col) {
+					this.picture.setRGB(col, row, this.pixels[row][col]);
+				}
+			}
+			this.redraw = false;
+		}
 		return this.picture;
 	}
 	
@@ -185,7 +266,7 @@ public class SeamCarver {
 	 *   object.
 	 */
 	public int width() {
-		return this.picture.width();
+		return this.width;
 	}
 	
 	/*
@@ -197,12 +278,12 @@ public class SeamCarver {
 	 *   object.
 	 */
 	public int height() {
-		return this.picture.height();
+		return this.height;
 	}
 		
 	private boolean isBorderPixel(int row, int col) {
 		return row == 0 || row == this.height-1 ||
-			   col == 0 || col == this.width- 1;
+			   col == 0 || col == this.width-1;
 	}
 	
 	/*
@@ -238,7 +319,11 @@ public class SeamCarver {
 	 *   object.
 	 */
 	public int[] findHorizontalSeam() {
-		throw new UnsupportedOperationException();
+		
+		this.transpose();
+		int[] seamRows = this.findVerticalSeam();		
+		this.transpose();
+		return seamRows;
 	}
 	
 	/*
@@ -256,7 +341,6 @@ public class SeamCarver {
 		// Relax edges from the source.
 		for (int col = 0; col < this.width; ++col) {
 			this.energySqTo[0][col] = 0.0;
-			this.rowTo[0][col] = this.SOURCEROW;
 			this.colTo[0][col] = this.SOURCECOL;
 		}
 	
@@ -270,14 +354,12 @@ public class SeamCarver {
 		final int[] seamCols = new int[this.height];
 		int row = this.rowToTarget;
 		int col = this.colToTarget;
-		int idx = this.height-1;
+		int idx = this.height-1; // bottom row
 		do {
 			seamCols[idx--] = col;
-			final int newRow = this.rowTo[row][col];
 			final int newCol = this.colTo[row][col];
-			row = newRow;
 			col = newCol;
-		} while (row != this.SOURCEROW);
+		} while (idx >= 0);
 		
 		return seamCols;
 	}
@@ -289,36 +371,35 @@ public class SeamCarver {
 	 * @param seam The horizontal seam to be removed.
 	 */
 	public void removeHorizontalSeam(int[] seam) {
-		if (this.picture.height() < 2) {
-			throw new IllegalArgumentException();
-		}
-
-		if (seam == null) {
-			throw new IllegalArgumentException();
-		}
-
-		final int length = seam.length;
-		if (length != this.picture.width()) {
-			throw new IllegalArgumentException();
-		}
-		
-		int lastRowIdx = seam[0];
-		for (int i = 0; i < length; ++i) {
-			final int rowIdx = seam[i];
-			if (!this.validRowIndex(rowIdx)) {
-				throw new IllegalArgumentException();
-			}
-			
-			if (Math.abs(lastRowIdx - rowIdx) > 1) {				
-				throw new IllegalArgumentException();
-			} else {
-				lastRowIdx = rowIdx;
-			}
-		}
-		
-		throw new UnsupportedOperationException();
+		this.transpose();
+		this.removeVerticalSeam(seam);
+		this.transpose();
 	}
 	
+	private void deleteCol(int[] a, int col) {
+		
+		final int len = a.length;
+		if (len == 0 || col == len-1) {
+			// No shift necessary.
+			return;
+		} else {
+			// Shift 'a' one column to the left from col+1
+			System.arraycopy(a, col+1, a, col, len-col);
+		}
+	}
+
+	private void deleteCol(double[] a, int col) {
+		
+		final int len = a.length;
+		if (len == 0 || col == len-1) {
+			// No shift necessary.
+			return;
+		} else {
+			// Shift 'a' one column to the left from col+1
+			System.arraycopy(a, col+1, a, col, len-col);
+		}
+	}
+
 	/*
 	 * @brief Remove the next vertical seam from
 	 *   the current picture associated with this
@@ -326,7 +407,7 @@ public class SeamCarver {
 	 * @param seam The vertical seam to be removed.
 	 */
 	public void removeVerticalSeam(int[] seam) {
-		if (this.picture.width() < 2) {
+		if (this.width() < 2) {
 			throw new IllegalArgumentException();
 		}
 		
@@ -335,7 +416,7 @@ public class SeamCarver {
 		}
 
 		final int length = seam.length;
-		if (length != this.picture.height()) {
+		if (length != this.height()) {
 			throw new IllegalArgumentException();
 		}
 
@@ -353,7 +434,49 @@ public class SeamCarver {
 			}			
 		}
 
-		throw new UnsupportedOperationException();
+		// Shift Elements of arrays
+		for (int row = 0; row < this.height; ++row) {
+			this.deleteCol(pixels[row], seam[row]);
+			this.deleteCol(energySq[row], seam[row]);
+		}
+		
+		// Update dimensions
+		--this.width;
+		this.dim = Math.max(this.width, this.height);		
+		
+		// Recalculate energies in columns (row, seam[row]-1) and (row, seam[row] (which was previously seam[row]+1))
+		for (int row = 0; row < this.height; ++row) {
+			if (this.validIndices(row, seam[row]-1)) {
+				if (this.isBorderPixel(row, seam[row]-1)) {
+					this.energySq[row][seam[row]-1] = SeamCarver.BORDERENERGY;
+				} else {
+					this.energySq[row][seam[row]-1] = this.energySq(row, seam[row]-1);
+				}
+			}
+			
+			if (this.validIndices(row, seam[row])) {
+				if (this.isBorderPixel(row, seam[row])) {
+					this.energySq[row][seam[row]] = SeamCarver.BORDERENERGY;
+				} else {
+					this.energySq[row][seam[row]] = this.energySq(row, seam[row]);
+				}
+			}
+		}
+
+		// Reinitialize cached data
+		for (int row = 0; row < this.height; ++row) {
+			for (int col = 0; col < this.width; ++ col) {
+				this.energySqTo[row][col] = Double.POSITIVE_INFINITY;
+				this.colTo[row][col] = col;
+			}
+		}
+		
+		this.rowToTarget = this.TARGETROW;
+		this.colToTarget = this.TARGETCOL;
+		this.energySqToTarget = Double.POSITIVE_INFINITY;
+		
+		// Set flag to regenerate picture on next request.
+		this.redraw = true;		
 	}
 }
 
