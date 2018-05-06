@@ -32,6 +32,13 @@ public class SeamCarver {
 	private int colToTarget;
 	private double energySqToTarget = Double.POSITIVE_INFINITY;
 
+	// Oreintation
+	private enum Orientation {
+		PORTRAIT,
+		LANDSCAPE
+	}
+	private Orientation orientation = Orientation.PORTRAIT;
+	
 	// Static constants
 	private static final double BORDERENERGY = 1000.0;
 
@@ -225,6 +232,10 @@ public class SeamCarver {
 		final int tmp = this.width;
 		this.width = this.height;
 		this.height = tmp;
+		
+		this.orientation = (this.orientation == Orientation.PORTRAIT) 
+						   ? Orientation.LANDSCAPE
+						   : Orientation.PORTRAIT;
 	}
 	
 	private boolean validColumnIndex(int col) {
@@ -246,6 +257,10 @@ public class SeamCarver {
 	 *   this SeamCraver object.
 	 */
 	public Picture picture() {
+		if (this.orientation != Orientation.PORTRAIT) {
+			this.transpose();
+		}
+
 		if (this.redraw) {
 			for (int row = 0; row < this.height; ++row) {
 				for (int col = 0; col < this.width; ++col) {
@@ -266,7 +281,7 @@ public class SeamCarver {
 	 *   object.
 	 */
 	public int width() {
-		return this.width;
+		return this.orientation == Orientation.PORTRAIT ? this.width : this.height;
 	}
 	
 	/*
@@ -278,7 +293,7 @@ public class SeamCarver {
 	 *   object.
 	 */
 	public int height() {
-		return this.height;
+		return this.orientation == Orientation.PORTRAIT ? this.height : this.width;
 	}
 		
 	private boolean isBorderPixel(int row, int col) {
@@ -305,7 +320,9 @@ public class SeamCarver {
 			throw new IllegalArgumentException();
 		}
 		
-		return Math.sqrt(this.energySq[row][col]);
+		return this.orientation == Orientation.PORTRAIT
+				? Math.sqrt(this.energySq[row][col])
+				: Math.sqrt(this.energySq[col][row]);
 	}
 	
 	/*
@@ -320,7 +337,10 @@ public class SeamCarver {
 	 */
 	public int[] findHorizontalSeam() {
 		
-		this.transpose();
+		if (this.orientation == Orientation.PORTRAIT) {
+			this.transpose();
+		}
+		
 		int[] seamRows = this.findVerticalSeam();		
 		this.transpose();
 		return seamRows;
@@ -371,9 +391,12 @@ public class SeamCarver {
 	 * @param seam The horizontal seam to be removed.
 	 */
 	public void removeHorizontalSeam(int[] seam) {
-		this.transpose();
+		
+		if (this.orientation == Orientation.PORTRAIT) {
+			this.transpose();
+		}
+		
 		this.removeVerticalSeam(seam);
-		this.transpose();
 	}
 	
 	private void deleteCol(int[] a, int col) {
@@ -407,6 +430,11 @@ public class SeamCarver {
 	 * @param seam The vertical seam to be removed.
 	 */
 	public void removeVerticalSeam(int[] seam) {
+		
+		if (this.orientation != Orientation.PORTRAIT) {
+			this.transpose();
+		}
+
 		if (this.width() < 2) {
 			throw new IllegalArgumentException();
 		}
