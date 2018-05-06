@@ -6,7 +6,7 @@ import edu.princeton.cs.algs4.Picture;
 public class SeamCarver {
 	
 	// Current Picture
-	private final Picture picture;
+	private Picture picture;
 	private boolean redraw = false;
 	
 	// Dimensions
@@ -257,11 +257,12 @@ public class SeamCarver {
 	 *   this SeamCraver object.
 	 */
 	public Picture picture() {
-		if (this.orientation != Orientation.PORTRAIT) {
-			this.transpose();
-		}
-
 		if (this.redraw) {
+			if (this.orientation != Orientation.PORTRAIT) {
+				this.transpose();
+			}
+
+			this.picture = new Picture(this.width, this.height);
 			for (int row = 0; row < this.height; ++row) {
 				for (int col = 0; col < this.width; ++col) {
 					this.picture.setRGB(col, row, this.pixels[row][col]);
@@ -357,6 +358,10 @@ public class SeamCarver {
 	 *   object.
 	 */
 	public int[] findVerticalSeam() {
+		
+		if (this.orientation != Orientation.PORTRAIT) {
+			this.transpose();
+		}
 
 		// Relax edges from the source.
 		for (int col = 0; col < this.width; ++col) {
