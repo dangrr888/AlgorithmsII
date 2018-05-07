@@ -73,8 +73,8 @@ public class SeamCarver {
 		
 		// Paths
 		this.colTo = new int[this.dim][];
-		
-		for (int row = 0; row < this.height; ++row) { // loop over rows
+				
+		for (int row = 0; row < this.dim; ++row) { // loop over rows
 			
 			// RGB
 			this.pixels[row] = new int[this.dim];
@@ -86,18 +86,20 @@ public class SeamCarver {
 			// Paths
 			this.colTo[row] = new int[this.dim];
 			
-			for (int col = 0; col < this.width; ++col) { // loop over columns
-			
-				final int rgb = picture.getRGB(col, row);	
-
-				// Picture (copy source)
-				this.picture.setRGB(col, row, rgb);
+			if (row < this.height) {
+				for (int col = 0; col < this.width; ++col) { // loop over columns
 				
-				// RGB (copy picture)
-				this.pixels[row][col] = rgb;
-				
-			}  // ! loop over rows
-		} // ! loop over columns
+					final int rgb = picture.getRGB(col, row);	
+	
+					// Picture (copy source)
+					this.picture.setRGB(col, row, rgb);
+					
+					// RGB (copy picture)
+					this.pixels[row][col] = rgb;
+					
+				}  // ! loop over columns
+			}
+		} // ! loop over rows
 		
 		// Calculate energy
 		for (int row = 0; row < this.height; ++row) {
