@@ -315,7 +315,11 @@ public class SeamCarver {
 			return;
 		} else {
 			// Shift 'a' one column to the left from col+1
-			System.arraycopy(a, col+1, a, col, len-col);
+			// e.g., if a is {0,1,2,3,4}
+			// and we wish to remove column 2 (containing 2)
+			// Then we want to shift {3,4} over to column 2
+			// System.arrayCopy(a, 2, 1, 3, 2), i.e., len = 5 - (2+1) = 5 - 3 = 2
+			System.arraycopy(a, col+1, a, col, len-(col+1));
 		}
 	}
 
@@ -327,7 +331,7 @@ public class SeamCarver {
 			return;
 		} else {
 			// Shift 'a' one column to the left from col+1
-			System.arraycopy(a, col+1, a, col, len-col);
+			System.arraycopy(a, col+1, a, col, len-(col+1));
 		}
 	}
 
