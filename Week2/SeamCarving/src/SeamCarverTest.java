@@ -398,4 +398,31 @@ class SeamCarverTest {
 		assertEquals(p.get(5, 2).getRGB(), picture.get(5, 3).getRGB());
 		assertEquals(p.get(5, 3).getRGB(), picture.get(5, 4).getRGB());
 	}
+	
+	@Test
+	void findVerticalSeamTest3x4() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/3x4.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] vSeam = sc.findVerticalSeam();
+		assertEquals(vSeam.length, picture.height());
+		assertEquals(vSeam[0], 0);
+		assertEquals(vSeam[1], 1);
+		assertEquals(vSeam[2], 1);
+		assertEquals(vSeam[3], 0);
+	}
+
+	@Test
+	void findHorizontalSeamTest3x4() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/3x4.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] hSeam = sc.findHorizontalSeam();
+		assertEquals(hSeam.length, picture.width());
+		assertEquals(hSeam[0], 1);
+		assertEquals(hSeam[1], 2);
+		assertEquals(hSeam[2], 1);
+	}
 }
