@@ -69,7 +69,7 @@ class SeamCarverTest {
 	@Test
 	void removeVerticalSeamTest1() {
 		setUp();
-		final int[] vSeam = sc1.findHorizontalSeam();
+		final int[] vSeam = sc1.findVerticalSeam();
 		assertEquals(vSeam.length, picture1.height());
 		assertEquals(vSeam[0], 0);
 		assertEquals(vSeam[1], 1);
@@ -107,5 +107,15 @@ class SeamCarverTest {
 		
 		assertEquals(p.get(0, 3).getRGB(), picture1.get(1, 3).getRGB());
 		assertEquals(p.get(1, 3).getRGB(), picture1.get(2, 3).getRGB());
+	}
+	
+	@Test
+	void findHorizontalSeamTest1() {
+		setUp();
+		final int[] hSeam = sc1.findHorizontalSeam();
+		assertEquals(hSeam.length, picture1.width());
+		assertEquals(hSeam[0], 1);
+		assertEquals(hSeam[1], 2);
+		assertEquals(hSeam[2], 1);
 	}
 }

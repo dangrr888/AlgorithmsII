@@ -253,7 +253,7 @@ public class SeamCarver {
 	
 	private void transpose(int[][] a) {
 		for (int row = 0; row < this.dim; ++row) {
-			for (int col = 0; col < this.dim; ++col) {
+			for (int col = row+1; col < this.dim; ++col) {
 				final int tmp = a[row][col];
 				a[row][col] = a[col][row];
 				a[col][row] = tmp;
@@ -263,7 +263,7 @@ public class SeamCarver {
 
 	private void transpose(double[][] a) {
 		for (int row = 0; row < this.dim; ++row) {
-			for (int col = 0; col < this.dim; ++col) {
+			for (int col = row+1; col < this.dim; ++col) {
 				final double tmp = a[row][col];
 				a[row][col] = a[col][row];
 				a[col][row] = tmp;
@@ -276,8 +276,8 @@ public class SeamCarver {
 		// Transpose arrays.
 		this.transpose(this.pixels);
 		this.transpose(this.energySq);
-		this.transpose(energySqTo);
-		this.transpose(colTo);
+		this.transpose(this.energySqTo);
+		this.transpose(this.colTo);
 		
 		// Flip dimensions.
 		final int tmp = this.width;
@@ -335,6 +335,116 @@ public class SeamCarver {
 		}
 	}
 
+	private int[] findSeam() {
+		
+		// Relax edges directly connected to the source node (i.e., top row).
+		for (int col = 0; col < this.width; ++col) {
+			this.energySqTo[0][col] = 0.0; // Source node has zero energy.
+			this.colTo[0][col] = this.SOURCECOL;
+		}
+	
+		// Relax all remaining edges in topological order,
+		// i.e., top row to bottom row.
+		for (int row = 0; row < this.height; ++row) {
+			for (int col = 0; col < this.width; ++col) {
+				this.relax(row, col);
+			}
+		}
+		
+		// Construct seam.
+		
+		final int[] seamCols = new int[this.height];
+
+		int row = this.height-1; // bottom row
+		int col = this.colToTarget;
+		do {
+			seamCols[row] = col;
+			
+			col = this.colTo[row][col];
+			--row;
+		} while (row >= 0);
+		
+		return seamCols;
+	}
+	
+	private void removeSeam(int[] seam) {
+		
+		// Defensive coding for argument validation.
+		if (this.width() < 2) {
+			throw new IllegalArgumentException();
+		}
+		
+		if (seam == null) {
+			throw new IllegalArgumentException();
+		}
+
+		final int length = seam.length;
+		if (length != this.height()) {
+			throw new IllegalArgumentException();
+		}
+
+		int lastColumnIdx = seam[0];
+		for (int i = 0; i < length; ++i) {
+			final int columnIdx = seam[i];
+			if (!this.validColumnIndex(seam[i])) {
+				throw new IllegalArgumentException();
+			}
+			
+			if (Math.abs(lastColumnIdx - columnIdx) > 1) {				
+				throw new IllegalArgumentException();
+			} else {
+				lastColumnIdx = columnIdx;
+			}			
+		}
+
+		// Remove seam.
+		for (int row = 0; row < this.height; ++row) {
+			this.deleteCol(pixels[row], seam[row]);
+			this.deleteCol(energySq[row], seam[row]);
+		}
+		
+		// Update dimensions.
+		
+		--this.width;
+		
+		// Here update dim, so that when transposing,
+		// we only transpose the section of the matrix
+		// required, even though after we remove the first
+		// seam they will be larger than the subsequent
+		// values of dim.
+		this.dim = Math.max(this.width, this.height);
+		
+		// Recalculate energies in columns (row, seam[row]-1)
+		// and (row, seam[row] (which was previously seam[row]+1)),
+		// all other energies are unaffected.
+		for (int row = 0; row < this.height; ++row) {
+			
+			// Recalculate energy for pixel (row, seam[row]-1).
+			if (this.validIndices(row, seam[row]-1)) {
+				if (this.isBorderPixel(row, seam[row]-1)) {
+					this.energySq[row][seam[row]-1] = SeamCarver.BORDERENERGYSQ;
+				} else {
+					this.energySq[row][seam[row]-1] = this.energySq(row, seam[row]-1);
+				}
+			}
+			
+			
+			// Recalculate energy for pixel (row, seam[row]).
+			if (this.validIndices(row, seam[row])) {
+				if (this.isBorderPixel(row, seam[row])) {
+					this.energySq[row][seam[row]] = SeamCarver.BORDERENERGYSQ;
+				} else {
+					this.energySq[row][seam[row]] = this.energySq(row, seam[row]);
+				}
+			}
+		}
+
+		// Reinitialize cached path data.
+		this.initializeCachedPathData();
+		
+		// Set flag to regenerate picture on next request.
+		this.redraw = true;		
+	}
 	
 	// *************** PUBLIC METHODS ***************
 	
@@ -426,12 +536,11 @@ public class SeamCarver {
 	 */
 	public int[] findHorizontalSeam() {
 		
-		if (this.orientation == Orientation.PORTRAIT) {
+		if (this.orientation != Orientation.LANDSCAPE) {
 			this.transpose();
 		}
 		
-		final int[] seamRows = this.findVerticalSeam();		
-		return seamRows;
+		return this.findSeam();
 	}
 	
 	/*
@@ -446,41 +555,13 @@ public class SeamCarver {
 	 */
 	public int[] findVerticalSeam() {
 		
-		// Check if transpose is required.
 		if (this.orientation != Orientation.PORTRAIT) {
 			this.transpose();
 		}
 
-		// Relax edges directly connected to the source node (i.e., top row).
-		for (int col = 0; col < this.width; ++col) {
-			this.energySqTo[0][col] = 0.0; // Source node has zero energy.
-			this.colTo[0][col] = this.SOURCECOL;
-		}
-	
-		// Relax all remaining edges in topological order,
-		// i.e., top row to bottom row.
-		for (int row = 0; row < this.height; ++row) {
-			for (int col = 0; col < this.width; ++col) {
-				this.relax(row, col);
-			}
-		}
-		
-		// Construct seam.
-		
-		final int[] seamCols = new int[this.height];
-
-		int row = this.height-1; // bottom row
-		int col = this.colToTarget;
-		do {
-			seamCols[row] = col;
-			
-			col = this.colTo[row][col];
-			--row;
-		} while (row >= 0);
-		
-		return seamCols;
+		return this.findSeam();
 	}
-	
+		
 	/*
 	 * @brief Remove the next horizontal seam from
 	 *   the current picture associated with this
@@ -489,12 +570,11 @@ public class SeamCarver {
 	 */
 	public void removeHorizontalSeam(int[] seam) {
 		
-		// Check if transpose is necessary.
-		if (this.orientation == Orientation.PORTRAIT) {
+		if (this.orientation != Orientation.LANDSCAPE) {
 			this.transpose();
 		}
 		
-		this.removeVerticalSeam(seam);
+		this.removeSeam(seam);
 	}
 	
 	/*
@@ -505,86 +585,11 @@ public class SeamCarver {
 	 */
 	public void removeVerticalSeam(int[] seam) {
 		
-		// Check if transpose is necessary.
 		if (this.orientation != Orientation.PORTRAIT) {
 			this.transpose();
 		}
 
-		// Defensive coding for argument validation.
-		if (this.width() < 2) {
-			throw new IllegalArgumentException();
-		}
-		
-		if (seam == null) {
-			throw new IllegalArgumentException();
-		}
-
-		final int length = seam.length;
-		if (length != this.height()) {
-			throw new IllegalArgumentException();
-		}
-
-		int lastColumnIdx = seam[0];
-		for (int i = 0; i < length; ++i) {
-			final int columnIdx = seam[i];
-			if (!this.validColumnIndex(seam[i])) {
-				throw new IllegalArgumentException();
-			}
-			
-			if (Math.abs(lastColumnIdx - columnIdx) > 1) {				
-				throw new IllegalArgumentException();
-			} else {
-				lastColumnIdx = columnIdx;
-			}			
-		}
-
-		// Remove seam.
-		for (int row = 0; row < this.height; ++row) {
-			this.deleteCol(pixels[row], seam[row]);
-			this.deleteCol(energySq[row], seam[row]);
-		}
-		
-		// Update dimensions.
-		
-		--this.width;
-		
-		// Here update dim, so that when transposing,
-		// we only transpose the section of the matrix
-		// required, even though after we remove the first
-		// seam they will be larger than the subsequent
-		// values of dim.
-		this.dim = Math.max(this.width, this.height);
-		
-		// Recalculate energies in columns (row, seam[row]-1)
-		// and (row, seam[row] (which was previously seam[row]+1)),
-		// all other energies are unaffected.
-		for (int row = 0; row < this.height; ++row) {
-			
-			// Recalculate energy for pixel (row, seam[row]-1).
-			if (this.validIndices(row, seam[row]-1)) {
-				if (this.isBorderPixel(row, seam[row]-1)) {
-					this.energySq[row][seam[row]-1] = SeamCarver.BORDERENERGYSQ;
-				} else {
-					this.energySq[row][seam[row]-1] = this.energySq(row, seam[row]-1);
-				}
-			}
-			
-			
-			// Recalculate energy for pixel (row, seam[row]).
-			if (this.validIndices(row, seam[row])) {
-				if (this.isBorderPixel(row, seam[row])) {
-					this.energySq[row][seam[row]] = SeamCarver.BORDERENERGYSQ;
-				} else {
-					this.energySq[row][seam[row]] = this.energySq(row, seam[row]);
-				}
-			}
-		}
-
-		// Reinitialize cached path data.
-		this.initializeCachedPathData();
-		
-		// Set flag to regenerate picture on next request.
-		this.redraw = true;		
+		this.removeSeam(seam);
 	}
 }
 
