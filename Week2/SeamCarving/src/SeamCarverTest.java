@@ -118,4 +118,49 @@ class SeamCarverTest {
 		assertEquals(hSeam[1], 2);
 		assertEquals(hSeam[2], 1);
 	}
+	
+	@Test
+	void removeHorizontalSeamTest1() {
+		setUp();
+		final int[] hSeam = sc1.findHorizontalSeam();
+		assertEquals(hSeam.length, picture1.width());
+		assertEquals(hSeam[0], 1);
+		assertEquals(hSeam[1], 2);
+		assertEquals(hSeam[2], 1);
+
+		sc1.removeHorizontalSeam(hSeam);
+		final Picture p = sc1.picture();
+		
+		// Validate Dimensions
+		assertEquals(sc1.width(), picture1.width());
+		assertEquals(sc1.height(), picture1.height()-1);
+		assertEquals(p.width(), picture1.width());
+		assertEquals(p.height(), picture1.height()-1);
+		
+		// Validate Energies
+		assertEquals(Math.pow(sc1.energy(0, 0), 2.0), 1000000.00, EPSILON);
+		assertEquals(Math.pow(sc1.energy(0, 1), 2.0), 1000000.00, EPSILON);
+		assertEquals(Math.pow(sc1.energy(0, 2), 2.0), 1000000.00, EPSILON);
+		
+		assertEquals(Math.pow(sc1.energy(1, 0), 2.0), 1000000.00, EPSILON);
+		assertEquals(Math.pow(sc1.energy(1, 1), 2.0), 65336.00, EPSILON);
+		assertEquals(Math.pow(sc1.energy(1, 2), 2.0), 1000000.00, EPSILON);
+		
+		assertEquals(Math.pow(sc1.energy(2, 0), 2.0), 1000000.00, EPSILON);
+		assertEquals(Math.pow(sc1.energy(2, 1), 2.0), 1000000.00, EPSILON);
+		assertEquals(Math.pow(sc1.energy(2, 2), 2.0), 1000000.00, EPSILON);		
+
+		// Validate Colors of new picture.	
+		assertEquals(p.get(0, 0).getRGB(), picture1.get(0, 0).getRGB());
+		assertEquals(p.get(0, 1).getRGB(), picture1.get(0, 2).getRGB());
+		assertEquals(p.get(0, 2).getRGB(), picture1.get(0, 3).getRGB());
+
+		assertEquals(p.get(1, 0).getRGB(), picture1.get(1, 0).getRGB());
+		assertEquals(p.get(1, 1).getRGB(), picture1.get(1, 1).getRGB());
+		assertEquals(p.get(1, 2).getRGB(), picture1.get(1, 3).getRGB());
+
+		assertEquals(p.get(2, 0).getRGB(), picture1.get(2, 0).getRGB());
+		assertEquals(p.get(2, 1).getRGB(), picture1.get(2, 2).getRGB());
+		assertEquals(p.get(2, 2).getRGB(), picture1.get(2, 3).getRGB());
+	}
 }

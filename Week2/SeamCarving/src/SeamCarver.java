@@ -379,7 +379,7 @@ public class SeamCarver {
 		}
 
 		final int length = seam.length;
-		if (length != this.height()) {
+		if (length != this.height) {
 			throw new IllegalArgumentException();
 		}
 
