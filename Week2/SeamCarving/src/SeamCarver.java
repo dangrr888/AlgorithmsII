@@ -18,24 +18,24 @@ public class SeamCarver {
 	
 	// Arrays containing constant information
 	private final int pixels[][];
-	private final double energySq[][];
+	private final double energy[][];
 	
 	// Constant information for terminal nodes
 	private final int SOURCECOL;
 	private final int TARGETCOL;
 	
 	// Cached arrays for SP finding.
-	private double energySqTo[][];
+	private double energyTo[][];
 	private int colTo[][];
 	
 	// Cached information on terminal Node for SP finding.
 	private int colToTarget;
-	private double energySqToTarget;
+	private double energyToTarget;
 	
 	private Orientation orientation = Orientation.PORTRAIT;
 	
 	// Static constants
-	private static final double BORDERENERGYSQ = 1000.0*1000.0;
+	private static final double BORDERENERGY = 1000.0;
 
 	
 	// *************** PUBLIC STRUCTORS ***************
@@ -68,8 +68,8 @@ public class SeamCarver {
 		this.pixels = new int[this.dim][];
 		
 		// Energy
-		this.energySq = new double[this.dim][];
-		this.energySqTo = new double[this.dim][];
+		this.energy = new double[this.dim][];
+		this.energyTo = new double[this.dim][];
 		
 		// Paths
 		this.colTo = new int[this.dim][];
@@ -80,8 +80,8 @@ public class SeamCarver {
 			this.pixels[row] = new int[this.dim];
 			
 			// Energy
-			this.energySq[row] = new double[this.dim];
-			this.energySqTo[row] = new double[this.dim];
+			this.energy[row] = new double[this.dim];
+			this.energyTo[row] = new double[this.dim];
 		
 			// Paths
 			this.colTo[row] = new int[this.dim];
@@ -106,10 +106,10 @@ public class SeamCarver {
 			for (int col = 0; col < this.width; ++col) {		
 				if (this.isBorderPixel(row, col)) {
 					// Border pixels have fixed energy.
-					this.energySq[row][col] = SeamCarver.BORDERENERGYSQ;
+					this.energy[row][col] = SeamCarver.BORDERENERGY;
 				} else {
 					// Non-border pixels
-					this.energySq[row][col] = this.energySq(row, col);
+					this.energy[row][col] = this.calculateEnergy(row, col);
 				}
 			}
 		}
@@ -141,8 +141,8 @@ public class SeamCarver {
 		for (int row = 0; row < this.height; ++row) {
 			for (int col = 0; col < this.width; ++col) {
 				
-				// EnergySqTo (all start as infinity).
-				this.energySqTo[row][col] = Double.POSITIVE_INFINITY;
+				// energyTo (all start as infinity).
+				this.energyTo[row][col] = Double.POSITIVE_INFINITY;
 				
 				// Path (Start with null paths).
 				this.colTo[row][col] = col;	
@@ -151,7 +151,7 @@ public class SeamCarver {
 		
 		// Path to target node.
 		this.colToTarget = this.TARGETCOL;
-		this.energySqToTarget = Double.POSITIVE_INFINITY;
+		this.energyToTarget = Double.POSITIVE_INFINITY;
 	}
 	
 	// Helper functions to calculate energy.
@@ -177,11 +177,11 @@ public class SeamCarver {
 		return this.deltaSqComponent(urgb, drgb);		
 	}
 	
-	private double energySq(int row, int col) {
+	private double calculateEnergy(int row, int col) {
 		if (this.isBorderPixel(row, col)) {
-			return SeamCarver.BORDERENERGYSQ;
+			return SeamCarver.BORDERENERGY;
 		}
-		return this.deltaXSq(row, col) + this.deltaYSq(row, col);
+		return Math.sqrt(this.deltaXSq(row, col) + this.deltaYSq(row, col));
 	}
 	
 	private boolean isBorderPixel(int row, int col) {
@@ -217,14 +217,14 @@ public class SeamCarver {
 
 	// Helper function to relax edges of a specified pixel.
 	private void relax(int row, int col) {		
-		final double newEnergySqTo = this.energySqTo[row][col] + this.energySq(row, col);
+		final double newenergyTo = this.energyTo[row][col] + this.calculateEnergy(row, col);
 		
 		if (row == this.height-1) {
 			// Pixel is on bottom row, check if path to target is optimal.
-			if (this.energySqToTarget > newEnergySqTo) {
+			if (this.energyToTarget > newenergyTo) {
 				
 				// Update path to target with most optimal hitherto.
-				this.energySqToTarget = newEnergySqTo;
+				this.energyToTarget = newenergyTo;
 				this.colToTarget = col;
 			}
 		}
@@ -240,9 +240,9 @@ public class SeamCarver {
 			for (Integer adjCol : adjCols) { // Loop over adjacent pixels
 				if (adjCol != null) {
 					// Check if path to adjacent pixel is optimal.
-					if (this.energySqTo[adjRow][adjCol] > newEnergySqTo) {
+					if (this.energyTo[adjRow][adjCol] > newenergyTo) {
 						// Update path to adjacent pixel with most optimal hitherto.
-						this.energySqTo[adjRow][adjCol] = newEnergySqTo;
+						this.energyTo[adjRow][adjCol] = newenergyTo;
 						this.colTo[adjRow][adjCol] = col;
 					}
 				}			
@@ -277,8 +277,8 @@ public class SeamCarver {
 		
 		// Transpose arrays.
 		this.transpose(this.pixels);
-		this.transpose(this.energySq);
-		this.transpose(this.energySqTo);
+		this.transpose(this.energy);
+		this.transpose(this.energyTo);
 		this.transpose(this.colTo);
 		
 		// Flip dimensions.
@@ -341,7 +341,7 @@ public class SeamCarver {
 		
 		// Relax edges directly connected to the source node (i.e., top row).
 		for (int col = 0; col < this.width; ++col) {
-			this.energySqTo[0][col] = 0.0; // Source node has zero energy.
+			this.energyTo[0][col] = 0.0; // Source node has zero energy.
 			this.colTo[0][col] = this.SOURCECOL;
 		}
 	
@@ -402,7 +402,7 @@ public class SeamCarver {
 		// Remove seam.
 		for (int row = 0; row < this.height; ++row) {
 			this.deleteCol(pixels[row], seam[row]);
-			this.deleteCol(energySq[row], seam[row]);
+			this.deleteCol(energy[row], seam[row]);
 		}
 		
 		// Update dimensions.
@@ -424,9 +424,9 @@ public class SeamCarver {
 			// Recalculate energy for pixel (row, seam[row]-1).
 			if (this.validIndices(row, seam[row]-1)) {
 				if (this.isBorderPixel(row, seam[row]-1)) {
-					this.energySq[row][seam[row]-1] = SeamCarver.BORDERENERGYSQ;
+					this.energy[row][seam[row]-1] = SeamCarver.BORDERENERGY;
 				} else {
-					this.energySq[row][seam[row]-1] = this.energySq(row, seam[row]-1);
+					this.energy[row][seam[row]-1] = this.calculateEnergy(row, seam[row]-1);
 				}
 			}
 			
@@ -434,9 +434,9 @@ public class SeamCarver {
 			// Recalculate energy for pixel (row, seam[row]).
 			if (this.validIndices(row, seam[row])) {
 				if (this.isBorderPixel(row, seam[row])) {
-					this.energySq[row][seam[row]] = SeamCarver.BORDERENERGYSQ;
+					this.energy[row][seam[row]] = SeamCarver.BORDERENERGY;
 				} else {
-					this.energySq[row][seam[row]] = this.energySq(row, seam[row]);
+					this.energy[row][seam[row]] = this.calculateEnergy(row, seam[row]);
 				}
 			}
 		}
@@ -519,11 +519,9 @@ public class SeamCarver {
 			throw new IllegalArgumentException();
 		}
 		
-		final double eSq = this.orientation == Orientation.PORTRAIT
-						   ? this.energySq[row][col]
-						   : this.energySq[col][row];
-				
-		return Math.sqrt(eSq);
+		return this.orientation == Orientation.PORTRAIT
+						   ? this.energy[row][col]
+						   : this.energy[col][row];
 	}
 	
 	/*

@@ -41,18 +41,18 @@ class SeamCarverTest {
 	@Test
 	void energiesTest1() {
 		setUp();
-		assertEquals(Math.pow(sc1.energy(0, 0), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(1, 0), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(2, 0), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(0, 1), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(1, 1), 2.0), 52225.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(2, 1), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(0, 2), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(1, 2), 2.0), 52024.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(2, 2), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(0, 3), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(1, 3), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(2, 3), 2.0), 1000000.00, EPSILON);		
+		assertEquals(sc1.energy(0, 0), 1000.0, EPSILON);
+		assertEquals(sc1.energy(1, 0), 1000.0, EPSILON);
+		assertEquals(sc1.energy(2, 0), 1000.0, EPSILON);
+		assertEquals(sc1.energy(0, 1), 1000.0, EPSILON);
+		assertEquals(sc1.energy(1, 1), Math.sqrt(52225.00), EPSILON);
+		assertEquals(sc1.energy(2, 1), 1000.0, EPSILON);
+		assertEquals(sc1.energy(0, 2), 1000.0, EPSILON);
+		assertEquals(sc1.energy(1, 2), Math.sqrt(52024.00), EPSILON);
+		assertEquals(sc1.energy(2, 2), 1000.0, EPSILON);
+		assertEquals(sc1.energy(0, 3), 1000.0, EPSILON);
+		assertEquals(sc1.energy(1, 3), 1000.0, EPSILON);
+		assertEquals(sc1.energy(2, 3), 1000.0, EPSILON);		
 	}
 	
 	@Test
@@ -86,14 +86,14 @@ class SeamCarverTest {
 		assertEquals(p.height(), picture1.height());
 		
 		// Validate Energies
-		assertEquals(Math.pow(sc1.energy(0, 0), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(1, 0), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(0, 1), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(1, 1), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(0, 2), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(1, 2), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(0, 3), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(1, 3), 2.0), 1000000.00, EPSILON);
+		assertEquals(sc1.energy(0, 0), 1000.0, EPSILON);
+		assertEquals(sc1.energy(1, 0), 1000.0, EPSILON);
+		assertEquals(sc1.energy(0, 1), 1000.0, EPSILON);
+		assertEquals(sc1.energy(1, 1), 1000.0, EPSILON);
+		assertEquals(sc1.energy(0, 2), 1000.0, EPSILON);
+		assertEquals(sc1.energy(1, 2), 1000.0, EPSILON);
+		assertEquals(sc1.energy(0, 3), 1000.0, EPSILON);
+		assertEquals(sc1.energy(1, 3), 1000.0, EPSILON);
 
 		// Validate Colors of new picture.
 		assertEquals(p.get(0, 0).getRGB(), picture1.get(1, 0).getRGB());
@@ -138,17 +138,17 @@ class SeamCarverTest {
 		assertEquals(p.height(), picture1.height()-1);
 		
 		// Validate Energies
-		assertEquals(Math.pow(sc1.energy(0, 0), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(0, 1), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(0, 2), 2.0), 1000000.00, EPSILON);
+		assertEquals(sc1.energy(0, 0), 1000.0, EPSILON);
+		assertEquals(sc1.energy(0, 1), 1000.0, EPSILON);
+		assertEquals(sc1.energy(0, 2), 1000.0, EPSILON);
 		
-		assertEquals(Math.pow(sc1.energy(1, 0), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(1, 1), 2.0), 65336.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(1, 2), 2.0), 1000000.00, EPSILON);
+		assertEquals(sc1.energy(1, 0), 1000.0, EPSILON);
+		assertEquals(sc1.energy(1, 1), Math.sqrt(65336.00), EPSILON);
+		assertEquals(sc1.energy(1, 2), 1000.0, EPSILON);
 		
-		assertEquals(Math.pow(sc1.energy(2, 0), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(2, 1), 2.0), 1000000.00, EPSILON);
-		assertEquals(Math.pow(sc1.energy(2, 2), 2.0), 1000000.00, EPSILON);		
+		assertEquals(sc1.energy(2, 0), 1000.0, EPSILON);
+		assertEquals(sc1.energy(2, 1), 1000.0, EPSILON);
+		assertEquals(sc1.energy(2, 2), 1000.0, EPSILON);		
 
 		// Validate Colors of new picture.	
 		assertEquals(p.get(0, 0).getRGB(), picture1.get(0, 0).getRGB());
@@ -710,34 +710,16 @@ class SeamCarverTest {
 		
 		final int[] vSeam = sc.findVerticalSeam();
 		assertEquals(vSeam.length, picture.height());
-		assertEquals(vSeam[0], 0);
-		assertEquals(vSeam[1], 1);
-		assertEquals(vSeam[2], 2);
-		assertEquals(vSeam[3], 3);
-		assertEquals(vSeam[4], 4);
-		assertEquals(vSeam[5], 4);
-		assertEquals(vSeam[6], 5);
-		assertEquals(vSeam[7], 5);
-		assertEquals(vSeam[8], 5);
-		assertEquals(vSeam[9], 4);
-		double totalEnergySq = 0.0;
-		for (int row = 0; row < vSeam.length; ++row) {
-			totalEnergySq += Math.pow(sc.energy(vSeam[row], row), 2.0);
-		}
-		System.out.println("Total Energy: " + totalEnergySq);
-		
-		
-		final double expeectedTotalEnergySq  =  Math.pow(sc.energy(6, 0), 2.0) +
-												Math.pow(sc.energy(7, 1), 2.0) +
-												Math.pow(sc.energy(7, 2), 2.0) +
-												Math.pow(sc.energy(7, 3), 2.0) +
-												Math.pow(sc.energy(7, 4), 2.0) +
-												Math.pow(sc.energy(7, 5), 2.0) +
-												Math.pow(sc.energy(8, 6), 2.0) +
-												Math.pow(sc.energy(8, 7), 2.0) +
-												Math.pow(sc.energy(7, 8), 2.0) +
-												Math.pow(sc.energy(6, 9), 2.0);
-		System.out.println("Expected Total Energy: " + expeectedTotalEnergySq);		
+		assertEquals(vSeam[0], 6);
+		assertEquals(vSeam[1], 7);
+		assertEquals(vSeam[2], 7);
+		assertEquals(vSeam[3], 7);
+		assertEquals(vSeam[4], 7);
+		assertEquals(vSeam[5], 7);
+		assertEquals(vSeam[6], 8);
+		assertEquals(vSeam[7], 8);
+		assertEquals(vSeam[8], 7);
+		assertEquals(vSeam[9], 6);
 	}
 
 	@Test
