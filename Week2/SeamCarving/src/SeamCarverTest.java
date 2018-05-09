@@ -163,7 +163,95 @@ class SeamCarverTest {
 		assertEquals(p.get(2, 1).getRGB(), picture1.get(2, 2).getRGB());
 		assertEquals(p.get(2, 2).getRGB(), picture1.get(2, 3).getRGB());
 	}
+		
+	@Test
+	void findVerticalSeamTest3x4() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/3x4.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] vSeam = sc.findVerticalSeam();
+		assertEquals(vSeam.length, picture.height());
+		assertEquals(vSeam[0], 0);
+		assertEquals(vSeam[1], 1);
+		assertEquals(vSeam[2], 1);
+		assertEquals(vSeam[3], 0);
+	}
+
+	@Test
+	void findHorizontalSeamTest3x4() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/3x4.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] hSeam = sc.findHorizontalSeam();
+		assertEquals(hSeam.length, picture.width());
+		assertEquals(hSeam[0], 1);
+		assertEquals(hSeam[1], 2);
+		assertEquals(hSeam[2], 1);
+	}
 	
+	@Test
+	void findVerticalSeamTest4x6() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/4x6.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] vSeam = sc.findVerticalSeam();
+		assertEquals(vSeam.length, picture.height());
+		assertEquals(vSeam[0], 1);
+		assertEquals(vSeam[1], 2);
+		assertEquals(vSeam[2], 1);
+		assertEquals(vSeam[3], 1);
+		assertEquals(vSeam[4], 2);
+		assertEquals(vSeam[5], 1);
+	}
+
+	@Test
+	void findHorizontalSeamTest4x6() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/4x6.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] hSeam = sc.findHorizontalSeam();
+		assertEquals(hSeam.length, picture.width());
+		assertEquals(hSeam[0], 1);
+		assertEquals(hSeam[1], 2);
+		assertEquals(hSeam[2], 1);
+		assertEquals(hSeam[3], 0);
+	}
+
+	@Test
+	void findVerticalSeamTest5x6() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/5x6.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] vSeam = sc.findVerticalSeam();
+		assertEquals(vSeam.length, picture.height());
+		assertEquals(vSeam[0], 1);
+		assertEquals(vSeam[1], 2);
+		assertEquals(vSeam[2], 2);
+		assertEquals(vSeam[3], 3);
+		assertEquals(vSeam[4], 2);
+		assertEquals(vSeam[5], 1);
+	}
+
+	@Test
+	void findHorizontalSeamTest5x6() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/5x6.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] hSeam = sc.findHorizontalSeam();
+		assertEquals(hSeam.length, picture.width());
+		assertEquals(hSeam[0], 2);
+		assertEquals(hSeam[1], 3);
+		assertEquals(hSeam[2], 2);
+		assertEquals(hSeam[3], 3);
+		assertEquals(hSeam[4], 2);
+	}
+
 	@Test
 	void energiesTest6x5() {
 
@@ -398,94 +486,6 @@ class SeamCarverTest {
 		assertEquals(p.get(5, 2).getRGB(), picture.get(5, 3).getRGB());
 		assertEquals(p.get(5, 3).getRGB(), picture.get(5, 4).getRGB());
 	}
-	
-	@Test
-	void findVerticalSeamTest3x4() {
-
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/3x4.png");
-		final SeamCarver sc = new SeamCarver(picture);
-		
-		final int[] vSeam = sc.findVerticalSeam();
-		assertEquals(vSeam.length, picture.height());
-		assertEquals(vSeam[0], 0);
-		assertEquals(vSeam[1], 1);
-		assertEquals(vSeam[2], 1);
-		assertEquals(vSeam[3], 0);
-	}
-
-	@Test
-	void findHorizontalSeamTest3x4() {
-
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/3x4.png");
-		final SeamCarver sc = new SeamCarver(picture);
-		
-		final int[] hSeam = sc.findHorizontalSeam();
-		assertEquals(hSeam.length, picture.width());
-		assertEquals(hSeam[0], 1);
-		assertEquals(hSeam[1], 2);
-		assertEquals(hSeam[2], 1);
-	}
-	
-	@Test
-	void findVerticalSeamTest4x6() {
-
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/4x6.png");
-		final SeamCarver sc = new SeamCarver(picture);
-		
-		final int[] vSeam = sc.findVerticalSeam();
-		assertEquals(vSeam.length, picture.height());
-		assertEquals(vSeam[0], 1);
-		assertEquals(vSeam[1], 2);
-		assertEquals(vSeam[2], 1);
-		assertEquals(vSeam[3], 1);
-		assertEquals(vSeam[4], 2);
-		assertEquals(vSeam[5], 1);
-	}
-
-	@Test
-	void findHorizontalSeamTest4x6() {
-
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/4x6.png");
-		final SeamCarver sc = new SeamCarver(picture);
-		
-		final int[] hSeam = sc.findHorizontalSeam();
-		assertEquals(hSeam.length, picture.width());
-		assertEquals(hSeam[0], 1);
-		assertEquals(hSeam[1], 2);
-		assertEquals(hSeam[2], 1);
-		assertEquals(hSeam[3], 0);
-	}
-
-	@Test
-	void findVerticalSeamTest5x6() {
-
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/5x6.png");
-		final SeamCarver sc = new SeamCarver(picture);
-		
-		final int[] vSeam = sc.findVerticalSeam();
-		assertEquals(vSeam.length, picture.height());
-		assertEquals(vSeam[0], 1);
-		assertEquals(vSeam[1], 2);
-		assertEquals(vSeam[2], 2);
-		assertEquals(vSeam[3], 3);
-		assertEquals(vSeam[4], 2);
-		assertEquals(vSeam[5], 1);
-	}
-
-	@Test
-	void findHorizontalSeamTest5x6() {
-
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/5x6.png");
-		final SeamCarver sc = new SeamCarver(picture);
-		
-		final int[] hSeam = sc.findHorizontalSeam();
-		assertEquals(hSeam.length, picture.width());
-		assertEquals(hSeam[0], 2);
-		assertEquals(hSeam[1], 3);
-		assertEquals(hSeam[2], 2);
-		assertEquals(hSeam[3], 3);
-		assertEquals(hSeam[4], 2);
-	}
 
 	@Test
 	void findVerticalSeamTest3x7() {
@@ -515,6 +515,249 @@ class SeamCarverTest {
 		assertEquals(hSeam[0], 1);
 		assertEquals(hSeam[1], 2);
 		assertEquals(hSeam[2], 1);
+	}
+
+	@Test
+	void findHorizontalSeamTest7x10() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/7x10.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] hSeam = sc.findHorizontalSeam();
+		assertEquals(hSeam.length, picture.width());
+		assertEquals(hSeam[0], 6);
+		assertEquals(hSeam[1], 7);
+		assertEquals(hSeam[2], 7);
+		assertEquals(hSeam[3], 7);
+		assertEquals(hSeam[4], 8);
+		assertEquals(hSeam[5], 8);
+		assertEquals(hSeam[6], 7);
+	}
+
+	@Test
+	void findVerticalSeamTest7x10() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/7x10.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] vSeam = sc.findVerticalSeam();
+		assertEquals(vSeam.length, picture.height());
+		assertEquals(vSeam[0], 2);
+		assertEquals(vSeam[1], 3);
+		assertEquals(vSeam[2], 4);
+		assertEquals(vSeam[3], 3);
+		assertEquals(vSeam[4], 4);
+		assertEquals(vSeam[5], 3);
+		assertEquals(vSeam[6], 3);
+		assertEquals(vSeam[7], 2);
+		assertEquals(vSeam[8], 2);
+		assertEquals(vSeam[9], 1);
+	}
+	
+	@Test
+	void findVerticalSeamTest7x3() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/7x3.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] vSeam = sc.findVerticalSeam();
+		assertEquals(vSeam.length, picture.height());
+		assertEquals(vSeam[0], 2);
+		assertEquals(vSeam[1], 3);
+		assertEquals(vSeam[2], 2);
+	}
+	
+	@Test
+	void findHorizontalSeamTest7x3() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/7x3.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] hSeam = sc.findHorizontalSeam();
+		assertEquals(hSeam.length, picture.width());
+		assertEquals(hSeam[0], 0);
+		assertEquals(hSeam[1], 1);
+		assertEquals(hSeam[2], 1);
+		assertEquals(hSeam[3], 1);
+		assertEquals(hSeam[4], 1);
+		assertEquals(hSeam[5], 1);
+		assertEquals(hSeam[6], 0);		
+	}
+
+	@Test
+	void energiesTest10x10() {
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/10x10.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		final double eps = 1e-2;
+		
+		assertEquals(sc.energy(0, 0), 1000.00, eps);
+		assertEquals(sc.energy(1, 0), 1000.00, eps);
+		assertEquals(sc.energy(2, 0), 1000.00, eps);
+		assertEquals(sc.energy(3, 0), 1000.00, eps);
+		assertEquals(sc.energy(4, 0), 1000.00, eps);
+		assertEquals(sc.energy(5, 0), 1000.00, eps);
+		assertEquals(sc.energy(6, 0), 1000.00, eps);
+		assertEquals(sc.energy(7, 0), 1000.00, eps);
+		assertEquals(sc.energy(8, 0), 1000.00, eps);
+		assertEquals(sc.energy(9, 0), 1000.00, eps);
+		
+		assertEquals(sc.energy(0, 1), 1000.00, eps);
+		assertEquals(sc.energy(1, 1), 136.73, eps);
+		assertEquals(sc.energy(2, 1), 272.84, eps);
+		assertEquals(sc.energy(3, 1), 254.64, eps);
+		assertEquals(sc.energy(4, 1), 280.20, eps);
+		assertEquals(sc.energy(5, 1), 178.56, eps);
+		assertEquals(sc.energy(6, 1), 236.84, eps);
+		assertEquals(sc.energy(7, 1), 128.93, eps);
+		assertEquals(sc.energy(8, 1), 172.62, eps);
+		assertEquals(sc.energy(9, 1), 1000.00, eps);
+
+		assertEquals(sc.energy(0, 2), 1000.00, eps);
+		assertEquals(sc.energy(1, 2), 222.06, eps);
+		assertEquals(sc.energy(2, 2), 156.22, eps);
+		assertEquals(sc.energy(3, 2), 186.79, eps);
+		assertEquals(sc.energy(4, 2), 208.01, eps);
+		assertEquals(sc.energy(5, 2), 171.06, eps);
+		assertEquals(sc.energy(6, 2), 295.56, eps);
+		assertEquals(sc.energy(7, 2), 125.46, eps);
+		assertEquals(sc.energy(8, 2), 259.00, eps);
+		assertEquals(sc.energy(9, 2), 1000.00, eps);
+
+		assertEquals(sc.energy(0, 3), 1000.00, eps);
+		assertEquals(sc.energy(1, 3), 228.47, eps);
+		assertEquals(sc.energy(2, 3), 252.25, eps);
+		assertEquals(sc.energy(3, 3), 168.24, eps);
+		assertEquals(sc.energy(4, 3), 164.97, eps);
+		assertEquals(sc.energy(5, 3), 127.18, eps);
+		assertEquals(sc.energy(6, 3), 209.46, eps);
+		assertEquals(sc.energy(7, 3), 202.49, eps);
+		assertEquals(sc.energy(8, 3), 229.03, eps);
+		assertEquals(sc.energy(9, 3), 1000.00, eps);
+
+		assertEquals(sc.energy(0, 4), 1000.00, eps);
+		assertEquals(sc.energy(1, 4), 293.85, eps);
+		assertEquals(sc.energy(2, 4), 274.51, eps);
+		assertEquals(sc.energy(3, 4), 217.81, eps);
+		assertEquals(sc.energy(4, 4), 165.63, eps);
+		assertEquals(sc.energy(5, 4), 175.67, eps);
+		assertEquals(sc.energy(6, 4), 223.37, eps);
+		assertEquals(sc.energy(7, 4), 194.78, eps);
+		assertEquals(sc.energy(8, 4), 243.35, eps);
+		assertEquals(sc.energy(9, 4), 1000.00, eps);
+		
+		assertEquals(sc.energy(0, 5), 1000.00, eps);
+		assertEquals(sc.energy(1, 5), 208.68, eps);
+		assertEquals(sc.energy(2, 5), 294.31, eps);
+		assertEquals(sc.energy(3, 5), 243.53, eps);
+		assertEquals(sc.energy(4, 5), 161.69, eps);
+		assertEquals(sc.energy(5, 5), 253.29, eps);
+		assertEquals(sc.energy(6, 5), 236.73, eps);
+		assertEquals(sc.energy(7, 5), 217.57, eps);
+		assertEquals(sc.energy(8, 5), 221.35, eps);
+		assertEquals(sc.energy(9, 5), 1000.00, eps);
+		
+		assertEquals(sc.energy(0, 6), 1000.00, eps);
+		assertEquals(sc.energy(1, 6), 318.51, eps);
+		assertEquals(sc.energy(2, 6), 222.38, eps);
+		assertEquals(sc.energy(3, 6), 240.88, eps);
+		assertEquals(sc.energy(4, 6), 239.79, eps);
+		assertEquals(sc.energy(5, 6), 220.45, eps);
+		assertEquals(sc.energy(6, 6), 259.36, eps);
+		assertEquals(sc.energy(7, 6), 269.76, eps);
+		assertEquals(sc.energy(8, 6), 264.14, eps);
+		assertEquals(sc.energy(9, 6), 1000.00, eps);
+
+		assertEquals(sc.energy(0, 7), 1000.00, eps);
+		assertEquals(sc.energy(1, 7), 225.20, eps);
+		assertEquals(sc.energy(2, 7), 270.73, eps);
+		assertEquals(sc.energy(3, 7), 187.06, eps);
+		assertEquals(sc.energy(4, 7), 197.58, eps);
+		assertEquals(sc.energy(5, 7), 165.59, eps);
+		assertEquals(sc.energy(6, 7), 255.09, eps);
+		assertEquals(sc.energy(7, 7), 276.89, eps);
+		assertEquals(sc.energy(8, 7), 124.04, eps);
+		assertEquals(sc.energy(9, 7), 1000.00, eps);
+
+		assertEquals(sc.energy(0, 8), 1000.00, eps);
+		assertEquals(sc.energy(1, 8), 222.50, eps);
+		assertEquals(sc.energy(2, 8), 204.43, eps);
+		assertEquals(sc.energy(3, 8), 252.65, eps);
+		assertEquals(sc.energy(4, 8), 270.87, eps);
+		assertEquals(sc.energy(5, 8), 199.05, eps);
+		assertEquals(sc.energy(6, 8), 324.13, eps);
+		assertEquals(sc.energy(7, 8),  90.64, eps);
+		assertEquals(sc.energy(8, 8), 245.94, eps);
+		assertEquals(sc.energy(9, 8), 1000.00, eps);
+		
+		assertEquals(sc.energy(0, 9), 1000.00, eps);
+		assertEquals(sc.energy(1, 9), 1000.00, eps);
+		assertEquals(sc.energy(2, 9), 1000.00, eps);
+		assertEquals(sc.energy(3, 9), 1000.00, eps);
+		assertEquals(sc.energy(4, 9), 1000.00, eps);
+		assertEquals(sc.energy(5, 9), 1000.00, eps);
+		assertEquals(sc.energy(6, 9), 1000.00, eps);
+		assertEquals(sc.energy(7, 9), 1000.00, eps);
+		assertEquals(sc.energy(8, 9), 1000.00, eps);
+		assertEquals(sc.energy(9, 9), 1000.00, eps);
+	}
+
+	
+	@Test
+	void findVerticalSeamTest10x10() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/10x10.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] vSeam = sc.findVerticalSeam();
+		assertEquals(vSeam.length, picture.height());
+		assertEquals(vSeam[0], 0);
+		assertEquals(vSeam[1], 1);
+		assertEquals(vSeam[2], 2);
+		assertEquals(vSeam[3], 3);
+		assertEquals(vSeam[4], 4);
+		assertEquals(vSeam[5], 4);
+		assertEquals(vSeam[6], 5);
+		assertEquals(vSeam[7], 5);
+		assertEquals(vSeam[8], 5);
+		assertEquals(vSeam[9], 4);
+		double totalEnergySq = 0.0;
+		for (int row = 0; row < vSeam.length; ++row) {
+			totalEnergySq += Math.pow(sc.energy(vSeam[row], row), 2.0);
+		}
+		System.out.println("Total Energy: " + totalEnergySq);
+		
+		
+		final double expeectedTotalEnergySq  =  Math.pow(sc.energy(6, 0), 2.0) +
+												Math.pow(sc.energy(7, 1), 2.0) +
+												Math.pow(sc.energy(7, 2), 2.0) +
+												Math.pow(sc.energy(7, 3), 2.0) +
+												Math.pow(sc.energy(7, 4), 2.0) +
+												Math.pow(sc.energy(7, 5), 2.0) +
+												Math.pow(sc.energy(8, 6), 2.0) +
+												Math.pow(sc.energy(8, 7), 2.0) +
+												Math.pow(sc.energy(7, 8), 2.0) +
+												Math.pow(sc.energy(6, 9), 2.0);
+		System.out.println("Expected Total Energy: " + expeectedTotalEnergySq);		
+	}
+
+	@Test
+	void findHorizontalSeamTest10x10() {
+
+		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/10x10.png");
+		final SeamCarver sc = new SeamCarver(picture);
+		
+		final int[] hSeam = sc.findHorizontalSeam();
+		assertEquals(hSeam.length, picture.width());
+		assertEquals(hSeam[0], 0);
+		assertEquals(hSeam[1], 1);
+		assertEquals(hSeam[2], 2);
+		assertEquals(hSeam[3], 3);
+		assertEquals(hSeam[4], 3);
+		assertEquals(hSeam[5], 3);
+		assertEquals(hSeam[6], 3);		
+		assertEquals(hSeam[7], 2);
+		assertEquals(hSeam[8], 1);
+		assertEquals(hSeam[9], 0);
 	}
 
 }
