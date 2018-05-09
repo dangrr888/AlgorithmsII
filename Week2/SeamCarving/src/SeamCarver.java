@@ -472,7 +472,9 @@ public class SeamCarver {
       this.redraw = false;
     }
     
-    return this.picture;
+    // Return deep copy so clients can mutate it without
+    // effecting SeamCarver behaviour.
+    return new Picture(this.picture);
   }
   
   /*
