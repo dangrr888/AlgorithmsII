@@ -6,7 +6,10 @@ import edu.princeton.cs.algs4.Picture;
 public class SeamCarver {
   
   // *************** PRIVATE DATA MEMBERS ***************
-  
+
+  // Static constants
+  private static final double BORDERENERGY = 1000.0;
+
   // Current Picture
   private Picture picture;
   private boolean redraw = false;
@@ -17,26 +20,22 @@ public class SeamCarver {
   private int dim;
   
   // Arrays containing constant information
-  private final int pixels[][];
-  private final double energy[][];
+  private final int[][] pixels;
+  private final double[][] energy;
   
   // Constant information for terminal nodes
-  private final int SOURCECOL;
-  private final int TARGETCOL;
+  private final int sourceCol;
+  private final int targetCol;
   
   // Cached arrays for SP finding.
-  private double energyTo[][];
-  private int colTo[][];
+  private double[][] energyTo;
+  private int[][] colTo;
   
   // Cached information on terminal Node for SP finding.
   private int colToTarget;
   private double energyToTarget;
   
   private Orientation orientation = Orientation.PORTRAIT;
-  
-  // Static constants
-  private static final double BORDERENERGY = 1000.0;
-
   
   // *************** PUBLIC STRUCTORS ***************
   
@@ -119,8 +118,8 @@ public class SeamCarver {
     // row and col of the source and target virtual nodes,
     // assigned values unachievable by regular pixels. They
     // never change throughout seam-carving.
-    this.SOURCECOL = this.dim;
-    this.TARGETCOL = this.dim+1;
+    this.sourceCol = this.dim;
+    this.targetCol = this.dim+1;
     
     // Initialize cached path data.
     this.initializeCachedPathData();
@@ -150,7 +149,7 @@ public class SeamCarver {
     }
     
     // Path to target node.
-    this.colToTarget = this.TARGETCOL;
+    this.colToTarget = this.targetCol;
     this.energyToTarget = Double.POSITIVE_INFINITY;
   }
   
@@ -191,28 +190,28 @@ public class SeamCarver {
 
   // Helper functions to calculate column of adjacent pixels.
   
-  private Integer middleAdj(int row, int col) {
+  private int middleAdj(int row, int col) {
     if (row < this.height-1) {
       return col;
     }
     
-    return null;
+    return -1;
   }
 
-  private Integer leftAdj(int row, int col) {
+  private int leftAdj(int row, int col) {
     if (col > 0 && row < this.height-1) {
       return col-1;
     }
     
-    return null;
+    return -1;
   }
 
-  private Integer rightAdj(int row, int col) {
+  private int rightAdj(int row, int col) {
     if (col < this.width-1 && row < this.height-1) {
       return col+1;
     }
     
-    return null;
+    return -1;
   }
 
   // Helper function to relax edges of a specified pixel.
@@ -233,12 +232,12 @@ public class SeamCarver {
       
       // Indices of adjacent pixels.
       final int adjRow = row + 1;
-      final Integer[] adjCols = {this.leftAdj(row, col),
+      final int[] adjCols = {this.leftAdj(row, col),
                              this.middleAdj(row, col),
                              this.rightAdj(row, col)};
   
-      for (Integer adjCol : adjCols) { // Loop over adjacent pixels
-        if (adjCol != null) {
+      for (int adjCol : adjCols) { // Loop over adjacent pixels
+        if (this.validColumnIndex(adjCol)) {
           // Check if path to adjacent pixel is optimal.
           if (this.energyTo[adjRow][adjCol] > newenergyTo) {
             // Update path to adjacent pixel with most optimal hitherto.
@@ -342,7 +341,7 @@ public class SeamCarver {
     // Relax edges directly connected to the source node (i.e., top row).
     for (int col = 0; col < this.width; ++col) {
       this.energyTo[0][col] = 0.0; // Source node has zero energy.
-      this.colTo[0][col] = this.SOURCECOL;
+      this.colTo[0][col] = this.sourceCol;
     }
   
     // Relax all remaining edges in topological order,
