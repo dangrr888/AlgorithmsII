@@ -8,7 +8,12 @@ import org.junit.jupiter.api.Test;
 import edu.princeton.cs.algs4.Picture;
 
 class SeamCarverTest {
+	// Windows
+	final static String testPath = "C:\\eclipse-workspace\\AlgorithmsII\\Week2\\SeamCarving\\test\\seam\\";
 
+	// MacOS
+	//final String testPath = "/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/";
+	
 	Picture picture1;
 	SeamCarver sc1;
 	final double EPSILON = 1e-11;
@@ -167,7 +172,7 @@ class SeamCarverTest {
 	@Test
 	void findVerticalSeamTest3x4() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/3x4.png");
+		final Picture picture = new Picture(testPath + "3x4.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] vSeam = sc.findVerticalSeam();
@@ -181,7 +186,7 @@ class SeamCarverTest {
 	@Test
 	void findHorizontalSeamTest3x4() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/3x4.png");
+		final Picture picture = new Picture(testPath + "3x4.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] hSeam = sc.findHorizontalSeam();
@@ -194,7 +199,7 @@ class SeamCarverTest {
 	@Test
 	void findVerticalSeamTest4x6() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/4x6.png");
+		final Picture picture = new Picture(testPath + "4x6.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] vSeam = sc.findVerticalSeam();
@@ -210,7 +215,7 @@ class SeamCarverTest {
 	@Test
 	void findHorizontalSeamTest4x6() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/4x6.png");
+		final Picture picture = new Picture(testPath + "4x6.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] hSeam = sc.findHorizontalSeam();
@@ -224,7 +229,7 @@ class SeamCarverTest {
 	@Test
 	void findVerticalSeamTest5x6() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/5x6.png");
+		final Picture picture = new Picture(testPath + "5x6.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] vSeam = sc.findVerticalSeam();
@@ -240,7 +245,7 @@ class SeamCarverTest {
 	@Test
 	void findHorizontalSeamTest5x6() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/5x6.png");
+		final Picture picture = new Picture(testPath + "5x6.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] hSeam = sc.findHorizontalSeam();
@@ -255,7 +260,7 @@ class SeamCarverTest {
 	@Test
 	void energiesTest6x5() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/6x5.png");
+		final Picture picture = new Picture(testPath + "6x5.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final double eps = 1e-2;
@@ -299,7 +304,7 @@ class SeamCarverTest {
 	@Test
 	void findVerticalSeamTest6x5() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/6x5.png");
+		final Picture picture = new Picture(testPath + "6x5.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] vSeam = sc.findVerticalSeam();
@@ -316,7 +321,7 @@ class SeamCarverTest {
 
 		final double eps = 1e-2;
 		
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/6x5.png");
+		final Picture picture = new Picture(testPath + "6x5.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] vSeam = sc.findVerticalSeam();
@@ -395,7 +400,7 @@ class SeamCarverTest {
 	@Test
 	void findHorizontalSeamTest6x5() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/6x5.png");
+		final Picture picture = new Picture(testPath + "6x5.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] hSeam = sc.findHorizontalSeam();
@@ -413,7 +418,7 @@ class SeamCarverTest {
 
 		final double eps = 1e-2;
 		
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/6x5.png");
+		final Picture picture = new Picture(testPath + "6x5.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] hSeam = sc.findHorizontalSeam();
@@ -490,7 +495,7 @@ class SeamCarverTest {
 	@Test
 	void findVerticalSeamTest3x7() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/3x7.png");
+		final Picture picture = new Picture(testPath + "3x7.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] vSeam = sc.findVerticalSeam();
@@ -507,7 +512,7 @@ class SeamCarverTest {
 	@Test
 	void findHorizontalSeamTest3x7() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/3x7.png");
+		final Picture picture = new Picture(testPath + "3x7.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] hSeam = sc.findHorizontalSeam();
@@ -520,7 +525,7 @@ class SeamCarverTest {
 	@Test
 	void findHorizontalSeamTest7x10() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/7x10.png");
+		final Picture picture = new Picture(testPath + "7x10.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] hSeam = sc.findHorizontalSeam();
@@ -537,7 +542,7 @@ class SeamCarverTest {
 	@Test
 	void findVerticalSeamTest7x10() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/7x10.png");
+		final Picture picture = new Picture(testPath + "7x10.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] vSeam = sc.findVerticalSeam();
@@ -557,7 +562,7 @@ class SeamCarverTest {
 	@Test
 	void findVerticalSeamTest7x3() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/7x3.png");
+		final Picture picture = new Picture(testPath + "7x3.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] vSeam = sc.findVerticalSeam();
@@ -570,7 +575,7 @@ class SeamCarverTest {
 	@Test
 	void findHorizontalSeamTest7x3() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/7x3.png");
+		final Picture picture = new Picture(testPath + "7x3.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] hSeam = sc.findHorizontalSeam();
@@ -586,7 +591,7 @@ class SeamCarverTest {
 
 	@Test
 	void energiesTest10x10() {
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/10x10.png");
+		final Picture picture = new Picture(testPath + "10x10.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		final double eps = 1e-2;
 		
@@ -705,7 +710,7 @@ class SeamCarverTest {
 	@Test
 	void findVerticalSeamTest10x10() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/10x10.png");
+		final Picture picture = new Picture(testPath + "10x10.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] vSeam = sc.findVerticalSeam();
@@ -725,7 +730,7 @@ class SeamCarverTest {
 	@Test
 	void findHorizontalSeamTest10x10() {
 
-		final Picture picture = new Picture("/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week2/SeamCarving/test/seam/10x10.png");
+		final Picture picture = new Picture(testPath + "10x10.png");
 		final SeamCarver sc = new SeamCarver(picture);
 		
 		final int[] hSeam = sc.findHorizontalSeam();
