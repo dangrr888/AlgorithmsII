@@ -360,8 +360,12 @@ public class SeamCarver {
     int col = this.colToTarget;
     do {
       seamCols[row] = col;
-      
-      col = this.colTo[row][col];
+
+      if (this.validColumnIndex(col)) {
+        col = this.colTo[row][col];
+      } else {
+        break;
+      }
       --row;
     } while (row >= 0);
     
