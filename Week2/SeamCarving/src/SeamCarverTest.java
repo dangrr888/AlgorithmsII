@@ -747,4 +747,28 @@ class SeamCarverTest {
     assertEquals(hSeam[9], 0);
   }
 
+  @Test
+  void findHorizontalSeamTest1x8() {
+
+    final Picture picture = new Picture(testPath + "1x8.png");
+    final SeamCarver sc = new SeamCarver(picture);
+
+    final int[] hSeam = sc.findHorizontalSeam();
+    assertEquals(hSeam.length, picture.width());
+    assertEquals(hSeam[0], 0);
+  }
+
+  @Test
+  void removeHorizontalSeamTest1x8() {
+
+    final Picture picture = new Picture(testPath + "1x8.png");
+    final SeamCarver sc = new SeamCarver(picture);
+
+    final int[] hSeam = sc.findHorizontalSeam();
+    assertEquals(hSeam.length, picture.width());
+    assertEquals(hSeam[0], 0);
+
+    sc.removeHorizontalSeam(hSeam);
+  }
+
 }

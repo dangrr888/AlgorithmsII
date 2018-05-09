@@ -371,7 +371,7 @@ public class SeamCarver {
   private void removeSeam(int[] seam) {
     
     // Defensive coding for argument validation.
-    if (this.width() < 2) {
+    if (this.width < 2) {
       throw new IllegalArgumentException();
     }
     
