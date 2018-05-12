@@ -771,4 +771,195 @@ class SeamCarverTest {
     sc.removeHorizontalSeam(hSeam);
   }
 
+  @Test
+  void bug12a() {
+
+    // Setup
+    final Picture picture = new Picture(6, 6);
+
+    // Row 0
+    picture.setRGB(0, 0, 0x090401);
+    picture.setRGB(1, 0, 0x030200);
+    picture.setRGB(2, 0, 0x020702);
+    picture.setRGB(3, 0, 0x030004);
+    picture.setRGB(4, 0, 0x020103);
+    picture.setRGB(5, 0, 0x080609);
+
+    // Row 1
+    picture.setRGB(0, 1, 0x060901);
+    picture.setRGB(1, 1, 0x070203);
+    picture.setRGB(2, 1, 0x040002);
+    picture.setRGB(3, 1, 0x000401);
+    picture.setRGB(4, 1, 0x090905);
+    picture.setRGB(5, 1, 0x040605);
+
+    // Row 2
+    picture.setRGB(0, 2, 0x070604);
+    picture.setRGB(1, 2, 0x010508);
+    picture.setRGB(2, 2, 0x090101);
+    picture.setRGB(3, 2, 0x030104);
+    picture.setRGB(4, 2, 0x020107);
+    picture.setRGB(5, 2, 0x090707);
+
+    // Row 3
+    picture.setRGB(0, 3, 0x070402);
+    picture.setRGB(1, 3, 0x000303);
+    picture.setRGB(2, 3, 0x090905);
+    picture.setRGB(3, 3, 0x020906);
+    picture.setRGB(4, 3, 0x030908);
+    picture.setRGB(5, 3, 0x050203);
+
+    // Row 4
+    picture.setRGB(0, 4, 0x080403);
+    picture.setRGB(1, 4, 0x000301);
+    picture.setRGB(2, 4, 0x070203);
+    picture.setRGB(3, 4, 0x000008);
+    picture.setRGB(4, 4, 0x060003);
+    picture.setRGB(5, 4, 0x080300);
+
+    // Row 5
+    picture.setRGB(0, 5, 0x040705);
+    picture.setRGB(1, 5, 0x030804);
+    picture.setRGB(2, 5, 0x070107);
+    picture.setRGB(3, 5, 0x030709);
+    picture.setRGB(4, 5, 0x090709);
+    picture.setRGB(5, 5, 0x050809);
+
+    final SeamCarver sc = new SeamCarver(picture);
+
+    // Operation #1
+    assertEquals(sc.width(), 6);
+
+    // Operation #2
+    final double eps = 1e-2;
+
+    // Row 0
+    assertEquals(sc.energy(0, 0), 1000.00, eps);
+    assertEquals(sc.energy(1, 0), 1000.00, eps);
+    assertEquals(sc.energy(2, 0), 1000.00, eps);
+    assertEquals(sc.energy(3, 0), 1000.00, eps);
+    assertEquals(sc.energy(4, 0), 1000.00, eps);
+    assertEquals(sc.energy(5, 0), 1000.00, eps);
+
+    // Row 1
+    assertEquals(sc.energy(0, 1), 1000.00, eps);
+    assertEquals(sc.energy(1, 1), 12.77, eps);
+    assertEquals(sc.energy(2, 1), 11.96, eps);
+    assertEquals(sc.energy(3, 1), 10.77, eps);
+    assertEquals(sc.energy(4, 1), 7.21, eps);
+    assertEquals(sc.energy(5, 1), 1000.00, eps);
+
+    // Row 2
+    assertEquals(sc.energy(0, 2), 1000.00, eps);
+    assertEquals(sc.energy(1, 2), 9.38, eps);
+    assertEquals(sc.energy(2, 2), 12.29, eps);
+    assertEquals(sc.energy(3, 2), 11.79, eps);
+    assertEquals(sc.energy(4, 2), 11.22, eps);
+    assertEquals(sc.energy(5, 2), 1000.00, eps);
+
+    // Row 3
+    assertEquals(sc.energy(0, 3), 1000.00, eps);
+    assertEquals(sc.energy(1, 3), 9.59, eps);
+    assertEquals(sc.energy(2, 3), 7.62, eps);
+    assertEquals(sc.energy(3, 3), 8.43, eps);
+    assertEquals(sc.energy(4, 3), 10.00, eps);
+    assertEquals(sc.energy(5, 3), 1000.00, eps);
+
+    // Row 4
+    assertEquals(sc.energy(0, 4), 1000.00, eps);
+    assertEquals(sc.energy(1, 4), 6.32, eps);
+    assertEquals(sc.energy(2, 4), 11.40, eps);
+    assertEquals(sc.energy(3, 4), 4.36, eps);
+    assertEquals(sc.energy(4, 4), 13.34, eps);
+    assertEquals(sc.energy(5, 4), 1000.00, eps);
+
+    // Row 5
+    assertEquals(sc.energy(0, 5), 1000.00, eps);
+    assertEquals(sc.energy(1, 5), 1000.00, eps);
+    assertEquals(sc.energy(2, 5), 1000.00, eps);
+    assertEquals(sc.energy(3, 5), 1000.00, eps);
+    assertEquals(sc.energy(4, 5), 1000.00, eps);
+    assertEquals(sc.energy(5, 5), 1000.00, eps);
+
+    // Operation #3
+    int[] hSeam = sc.findHorizontalSeam();
+    assertEquals(hSeam.length, 6);
+    assertEquals(hSeam[0], 3);
+    assertEquals(hSeam[1], 4);
+    assertEquals(hSeam[2], 3);
+    assertEquals(hSeam[3], 4);
+    assertEquals(hSeam[4], 3);
+    assertEquals(hSeam[5], 2);
+
+    // Operation #4
+
+    // Row 0
+    assertEquals(sc.energy(0, 0), 1000.00, eps);
+    assertEquals(sc.energy(1, 0), 1000.00, eps);
+    assertEquals(sc.energy(2, 0), 1000.00, eps);
+    assertEquals(sc.energy(3, 0), 1000.00, eps);
+    assertEquals(sc.energy(4, 0), 1000.00, eps);
+    assertEquals(sc.energy(5, 0), 1000.00, eps);
+
+    // Row 1
+    assertEquals(sc.energy(0, 1), 1000.00, eps);
+    assertEquals(sc.energy(1, 1), 12.77, eps);
+    assertEquals(sc.energy(2, 1), 11.96, eps);
+    assertEquals(sc.energy(3, 1), 10.77, eps);
+    assertEquals(sc.energy(4, 1), 7.21, eps);
+    assertEquals(sc.energy(5, 1), 1000.00, eps);
+
+    // Row 2
+    assertEquals(sc.energy(0, 2), 1000.00, eps);
+    assertEquals(sc.energy(1, 2), 9.38, eps);
+    assertEquals(sc.energy(2, 2), 12.29, eps);
+    assertEquals(sc.energy(3, 2), 11.79, eps);
+    assertEquals(sc.energy(4, 2), 11.22, eps);
+    assertEquals(sc.energy(5, 2), 1000.00, eps);
+
+    // Row 3
+    assertEquals(sc.energy(0, 3), 1000.00, eps);
+    assertEquals(sc.energy(1, 3), 9.59, eps);
+    assertEquals(sc.energy(2, 3), 7.62, eps);
+    assertEquals(sc.energy(3, 3), 8.43, eps);
+    assertEquals(sc.energy(4, 3), 10.00, eps);
+    assertEquals(sc.energy(5, 3), 1000.00, eps);
+
+    // Row 4
+    assertEquals(sc.energy(0, 4), 1000.00, eps);
+    assertEquals(sc.energy(1, 4), 6.32, eps);
+    assertEquals(sc.energy(2, 4), 11.40, eps);
+    assertEquals(sc.energy(3, 4), 4.36, eps);
+    assertEquals(sc.energy(4, 4), 13.34, eps);
+    assertEquals(sc.energy(5, 4), 1000.00, eps);
+
+    // Row 5
+    assertEquals(sc.energy(0, 5), 1000.00, eps);
+    assertEquals(sc.energy(1, 5), 1000.00, eps);
+    assertEquals(sc.energy(2, 5), 1000.00, eps);
+    assertEquals(sc.energy(3, 5), 1000.00, eps);
+    assertEquals(sc.energy(4, 5), 1000.00, eps);
+    assertEquals(sc.energy(5, 5), 1000.00, eps);
+
+    // Operation #5
+    assertEquals(sc.width(), 6);
+
+    // Operation #6
+    assertEquals(sc.height(), 6);
+
+    // Operation #7
+    hSeam = sc.findHorizontalSeam();
+
+    // Operation #8
+    assertEquals(sc.width(), 6);
+
+    // Operation #9
+    int[] vSeam = sc.findVerticalSeam();
+    assertEquals(vSeam[0], 3);
+    assertEquals(vSeam[1], 4);
+    assertEquals(vSeam[2], 3);
+    assertEquals(vSeam[3], 2);
+    assertEquals(vSeam[4], 3);
+    assertEquals(vSeam[5], 2);
+  }
 }
