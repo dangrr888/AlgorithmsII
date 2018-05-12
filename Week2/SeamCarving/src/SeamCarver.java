@@ -358,20 +358,15 @@ public class SeamCarver {
 
     int row = this.height-1; // bottom row
     int col = this.colToTarget;
-    do {
+    while (this.validIndices(row, col)) {
       seamCols[row] = col;
-
-      if (this.validColumnIndex(col)) {
-        col = this.colTo[row][col];
-      } else {
-        break;
-      }
+      col = this.colTo[row][col];
       --row;
-    } while (row >= 0);
+    }
     
     return seamCols;
   }
-  
+
   private void removeSeam(int[] seam) {
     
     // Defensive coding for argument validation.
