@@ -518,11 +518,11 @@ public class SeamCarver {
    */
   public double energy(int col, int row) {
 
-	if (this.orientation != Orientation.PORTRAIT) {
-		final int tmp = col;
-		col = row;
-		row = tmp;
-	}
+  if (this.orientation != Orientation.PORTRAIT) {
+    final int tmp = col;
+    col = row;
+    row = tmp;
+  }
 
     if (!this.validIndices(row, col)) {
         throw new IllegalArgumentException();
