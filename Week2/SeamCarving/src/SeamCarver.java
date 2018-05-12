@@ -338,6 +338,9 @@ public class SeamCarver {
 
   private int[] findSeam() {
     
+    // Initialize cached path data.
+    this.initializeCachedPathData();
+
     // Relax edges directly connected to the source node (i.e., top row).
     for (int col = 0; col < this.width; ++col) {
       this.energyTo[0][col] = 0.0; // Source node has zero energy.
@@ -438,9 +441,6 @@ public class SeamCarver {
         }
       }
     }
-
-    // Reinitialize cached path data.
-    this.initializeCachedPathData();
     
     // Set flag to regenerate picture on next request.
     this.redraw = true;    
