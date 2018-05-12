@@ -488,6 +488,7 @@ public class SeamCarver {
     return this.orientation == Orientation.PORTRAIT ? this.width : this.height;
   }
   
+  
   /*
    * @brief Retrieve the height of the current
    *   picture associated with this SeamCarver
@@ -499,6 +500,7 @@ public class SeamCarver {
   public int height() {
     return this.orientation == Orientation.PORTRAIT ? this.height : this.width;
   }
+  
   
   /*
    * @brief Return the energy associated with the
@@ -515,14 +517,20 @@ public class SeamCarver {
    *   location.
    */
   public double energy(int col, int row) {
+
+	if (this.orientation != Orientation.PORTRAIT) {
+		final int tmp = col;
+		col = row;
+		row = tmp;
+	}
+
     if (!this.validIndices(row, col)) {
-      throw new IllegalArgumentException();
-    }
-    
-    return this.orientation == Orientation.PORTRAIT
-               ? this.energy[row][col]
-               : this.energy[col][row];
+        throw new IllegalArgumentException();
+      }
+
+    return  this.energy[row][col];
   }
+
   
   /*
    * @brief Return the sequence of row indices
