@@ -2,3 +2,6 @@
 Resources/
 */**/.*
 *~
+.DS_Store
+*/**/test
+*.zip
