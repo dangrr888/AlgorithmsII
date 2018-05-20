@@ -1,4 +1,16 @@
+import java.util.HashMap;
+import java.util.Scanner;
+import java.util.Stack;
+
 public class BaseballElimination {
+
+  private final HashMap<String, Integer> map;
+  private final int numTeams;
+  private final String[] teams;
+  private final int[] wins;
+  private final int[] losses;
+  private final int[] remaining;
+  private final int[][] remainingInDivision;
 
   /*
    * @brief Create a baseball division from a specified
@@ -8,6 +20,7 @@ public class BaseballElimination {
    *    ** A team name (no internal whitespace characters)
    *    ** The number of wins
    *    ** The number of losses
+   *    ** The number of remaining games
    *    ** The number of remaining games against each team
    *         in the division.
    *
@@ -28,9 +41,50 @@ public class BaseballElimination {
    * @param filename The specified filename.
    */
   public BaseballElimination(String filename) {
+
+    // Check input.
     if (filename == null) {
       throw new IllegalArgumentException("Null argument.");
     }
+
+    // Initialize scanner
+    final Scanner sc = new Scanner(filename);
+
+    this.numTeams = sc.nextInt();
+    if (this.numTeams < 1) {
+      sc.close();
+      throw new IllegalArgumentException("#teams must be >= 1");
+    }
+
+    // Initialize data members.
+    this.teams = new String[this.numTeams];
+    this.wins = new int[this.numTeams];
+    this.losses = new int[this.numTeams];
+    this.remaining = new int[this.numTeams];
+    this.remainingInDivision = new int[this.numTeams][];
+    for (int i = 0; i < this.numTeams; ++i) {
+      this.remainingInDivision[i] = new int[this.numTeams];
+    }
+    this.map = new HashMap<String, Integer>();
+
+    // Read remaining input.
+    for (int i = 0; i < this.numTeams; ++i) {
+      this.teams[i] = sc.next();
+      this.wins[i] = sc.nextInt();
+      this.losses[i] = sc.nextInt();
+      this.remaining[i] = sc.nextInt();
+      for (int j = 0; j < this.numTeams; ++j) {
+        this.remainingInDivision[i][j] = sc.nextInt();
+      }
+      this.map.put(this.teams[i], i);
+    }
+
+    // Close scanner.
+    sc.close();
+
+
+    // Determine eliminated teams.
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -38,7 +92,7 @@ public class BaseballElimination {
    * @return The number of teams.
    */
   public int numberOfTeams() {
-    throw new UnsupportedOperationException();
+    return this.numTeams;
   }
 
   /*
@@ -48,7 +102,12 @@ public class BaseballElimination {
    *   teams.
    */
   public Iterable<String> teams() {
-    throw new UnsupportedOperationException();
+    final Stack<String> st = new Stack<String>();
+    for (int i = 0; i < this.numTeams; ++i) {
+      st.push(this.teams[i]);
+    }
+
+    return st;
   }
 
   /*
@@ -62,7 +121,7 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
-    throw new UnsupportedOperationException();
+    return this.wins[this.map.get(team)];
   }
 
   /*
@@ -76,7 +135,7 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
-    throw new UnsupportedOperationException();
+    return this.losses[this.map.get(team)];
   }
 
   /*
@@ -90,7 +149,7 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
-    throw new UnsupportedOperationException();
+    return this.remaining[this.map.get(team)];
   }
 
   /*
@@ -110,7 +169,7 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
-    throw new UnsupportedOperationException();
+    return this.remainingInDivision[this.map.get(team1)][this.map.get(team2)];
   }
 
   /*

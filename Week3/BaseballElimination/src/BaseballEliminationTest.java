@@ -69,4 +69,51 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  @Test
+  void test7() throws FileNotFoundException {
+    final String actual = this.testClient("teams7.txt");
+    final String expected =
+      "U.S.A is not eliminated\n" +
+      "England is not eliminated\n" +
+      "France is not eliminated\n" +
+      "Germany is not eliminated\n" +
+      "Ireland is eliminated by the subset R = {  }\n" +
+      "Belgium is not eliminated\n" +
+      "China is not eliminated\n";
+
+    assertEquals(actual, expected);
+  }
+
+  @Test
+  void test24() throws FileNotFoundException {
+    final String actual = this.testClient("teams7.txt");
+    final String expected =
+      "Team0 is not eliminated\n" +
+      "Team1 is not eliminated\n" +
+      "Team2 is not eliminated\n" +
+      "Team3 is not eliminated\n" +
+      "Team4 is not eliminated\n" +
+      "Team5 is not eliminated\n" +
+      "Team6 is not eliminated\n" +
+      "Team7 is not eliminated\n" +
+      "Team8 is not eliminated\n" +
+      "Team9 is not eliminated\n" +
+      "Team10 is not eliminated\n" +
+      "Team11 is not eliminated\n" +
+      "Team12 is not eliminated\n" +
+      "Team13 is eliminated by the subset R = {  }\n" +
+      "Team14 is not eliminated\n" +
+      "Team15 is not eliminated\n" +
+      "Team16 is not eliminated\n" +
+      "Team17 is not eliminated\n" +
+      "Team18 is not eliminated\n" +
+      "Team19 is not eliminated\n" +
+      "Team20 is not eliminated\n" +
+      "Team21 is not eliminated\n" +
+      "Team22 is not eliminated\n" +
+      "Team23 is not eliminated\n";
+
+    assertEquals(actual, expected);
+  }
+
 }
