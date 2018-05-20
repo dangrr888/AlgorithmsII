@@ -1,5 +1,3 @@
-import edu.princeton.cs.algs4.StdOut;
-
 public class BaseballElimination {
 
   /*
@@ -141,26 +139,5 @@ public class BaseballElimination {
     }
 
     throw new UnsupportedOperationException();
-  }
-
-  /*
-   * @brief Test client that reads in a sports division from an
-   *   input file specified in the first CL argument, and prints
-   *   whether each team is mathematically eliminated as well as a
-   *   certificate of elimination for each team that is eliminated.
-   */
-  public static void main(String[] args) {
-    final BaseballElimination division = new BaseballElimination(args[0]);
-    for (String team : division.teams()) {
-      if (division.isEliminated(team)) {
-        StdOut.print(team + " is eliminated by the subset R = {");
-        for (String r : division.certificateOfElimination(team)) {
-          StdOut.print(r + " ");
-        }
-        StdOut.println("}");
-      } else {
-        StdOut.println(team + " is not eliminated.");
-      }
-    }
   }
 }
