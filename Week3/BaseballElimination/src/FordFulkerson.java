@@ -20,21 +20,27 @@ public class FordFulkerson {
 
   public FordFulkerson(FlowNetwork G, int source, int target) {
 
+    this.initializePathData(G);
+    this.flow = 0.0;
+
+    while (this.hasAugmentingPath(G, source, target)) {
+      this.augmentPath(source, target);
+    }
+  }
+
+  private void initializePathData(FlowNetwork G) {
     this.edgeTo = new FlowEdge[G.V()];
     this.marked = new boolean[G.V()];
     for (int v = 0; v < G.V(); ++v) {
       this.edgeTo[v] = null;
       this.marked[v] = false;
     }
-
-    this.flow = 0.0;
-
-    while (this.hasAugmentingPath(G, source, target)) {
-      this.augmentPath();
-    }
   }
 
   private boolean hasAugmentingPath(FlowNetwork G, int source, int target) {
+
+    this.initializePathData(G);
+
     // Perform graph search (BFS) across entire graph (not necessary for
     // just finding a path, but makes the results from inCut valid).
 
@@ -67,11 +73,21 @@ public class FordFulkerson {
     return this.inCut(target);
   }
 
-  private void augmentPath() {
-    //1. Iterate through augmenting path and deduce bottleneck residual capacity
+  private void augmentPath(int source, int target) {
+
+    // 1. Iterate through augmenting path and deduce bottleneck residual capacity
+    double bottleneckCapacity = Double.POSITIVE_INFINITY;
+    for (FlowEdge edge = this.edgeTo[target]; edge != null; edge = this.edgeTo[edge.from()]) {
+      bottleneckCapacity = Math.min(bottleneckCapacity, edge.residualCapacityTo(edge.to()));
+    }
+
     //2. Iterate throw path adding flow from 1 to each edge along the path.
+    for (FlowEdge edge = this.edgeTo[target]; edge != null; edge = this.edgeTo[edge.from()]) {
+      edge.addResidualFlowTo(edge.to(), bottleneckCapacity);
+    }
+
     //3. Increment this.flow by that residual capacity.
-    throw new UnsupportedOperationException();
+    this.flow += bottleneckCapacity;
   }
 
   public double maxFlow() {
