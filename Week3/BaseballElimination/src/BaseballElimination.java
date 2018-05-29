@@ -1,16 +1,23 @@
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Stack;
+
+import edu.princeton.cs.algs4.FlowEdge;
+import edu.princeton.cs.algs4.FlowNetwork;
+import edu.princeton.cs.algs4.FordFulkerson;
 
 public class BaseballElimination {
 
   private final HashMap<String, Integer> map;
+  private final HashSet<Integer>[] R;
   private final int numTeams;
   private final String[] teams;
   private final int[] wins;
   private final int[] losses;
   private final int[] remaining;
   private final int[][] remainingInDivision;
+
 
   /*
    * @brief Create a baseball division from a specified
@@ -57,6 +64,8 @@ public class BaseballElimination {
     }
 
     // Initialize data members.
+    this.map = new HashMap<String, Integer>();
+    this.R = new HashSet[this.numTeams];
     this.teams = new String[this.numTeams];
     this.wins = new int[this.numTeams];
     this.losses = new int[this.numTeams];
@@ -64,10 +73,10 @@ public class BaseballElimination {
     this.remainingInDivision = new int[this.numTeams][];
     for (int i = 0; i < this.numTeams; ++i) {
       this.remainingInDivision[i] = new int[this.numTeams];
+      this.R[i] = new HashSet<Integer>();
     }
-    this.map = new HashMap<String, Integer>();
 
-    // Read remaining input.
+    // Read data for each team.
     for (int i = 0; i < this.numTeams; ++i) {
       this.teams[i] = sc.next();
       this.wins[i] = sc.nextInt();
@@ -82,9 +91,67 @@ public class BaseballElimination {
     // Close scanner.
     sc.close();
 
-
     // Determine eliminated teams.
-    throw new UnsupportedOperationException();
+    for (int i = 0; i < this.numTeams; ++i) {
+      // Determine contract of elimination for team i:
+
+      /*
+       * Create the flow network.
+       * Node 0: Source Node
+       * Node 1 <= n <= N*(N-1)/2: Nodes representing games between teams 0-1, 0-2, 0-3, etc (NOT DOUBLE COUNTING)
+       * Node N*(N-1)/2 + 1 <= n <= N*(N-1)/2 + N: Nodes representing each team from 0 to N-1
+       * Node N*(N-1)/2+N+1: Target Node.
+       * Note: N*(N-1)/2+N+2 nodes in total.
+       */
+      final FlowNetwork fn = new FlowNetwork(this.numTeams*(this.numTeams-1)/2+this.numTeams+2);
+
+      int gameNodeIdx = 1;
+      for (int j = 0; j < this.numTeams; ++j) {
+        for (int k = j+1; k < this.numTeams; ++k) {
+
+          /*
+           * Add edges from source node to game nodes.
+           */
+          fn.addEdge(new FlowEdge(0, gameNodeIdx, this.remainingInDivision[j][k], 0.0));
+
+          /*
+           * Add edges from game nodes to team nodes
+           */
+          fn.addEdge(new FlowEdge(gameNodeIdx, this.numTeams*(this.numTeams-1)/2 +1+j, Double.POSITIVE_INFINITY, 0.0));
+          fn.addEdge(new FlowEdge(gameNodeIdx, this.numTeams*(this.numTeams-1)/2 +1+k, Double.POSITIVE_INFINITY, 0.0));
+          ++gameNodeIdx;
+        }
+      }
+
+      /*
+       * Add edges from team nodes to target node
+       */
+      for (int j = 0; j < this.numTeams; ++j) {
+        if (i == j) {
+          // Also set edge from team i to target to 0.
+          fn.addEdge(new FlowEdge(this.numTeams*(this.numTeams-1)/2 + 1 + j,
+              this.numTeams*(this.numTeams-1)/2 + this.numTeams + 1,
+              0.0));
+        } else {
+          // Check team j doesn't trivially eliminate i. If so, then set capacity of edge from team i to target to 0
+          final double capacity = this.wins[i] + this.remaining[i] - this.wins[j];
+          fn.addEdge(new FlowEdge(this.numTeams*(this.numTeams-1)/2 + 1 + j,
+                                  this.numTeams*(this.numTeams-1)/2 + this.numTeams + 1,
+                                  capacity > 0.0 ? capacity : 0.0));
+          }
+      }
+
+      final FordFulkerson ff = new FordFulkerson(fn, 0, this.numTeams*(this.numTeams-1)/2+this.numTeams+1);
+      for (int j = 0; j < this.numTeams; ++j) {
+        if (i == j) {
+          continue;
+        }
+        if (ff.inCut(this.numTeams*(this.numTeams-1)/2 +1+j)) {
+          this.R[i].add(j);
+        }
+      }
+
+    }
   }
 
   /*
@@ -182,7 +249,7 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
-    throw new UnsupportedOperationException();
+    return !this.R[this.map.get(team)].isEmpty();
   }
 
   /*
@@ -197,6 +264,10 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
-    throw new UnsupportedOperationException();
+    final Stack<String> st = new Stack<String>();
+    for (int i : this.R[this.map.get(team)]) {
+      st.push(this.teams[i]);
+    }
+    return st;
   }
 }
