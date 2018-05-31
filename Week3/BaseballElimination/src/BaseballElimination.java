@@ -28,6 +28,14 @@ public class BaseballElimination {
   // in the target division.
   private final int[][] remainingInDivision;
 
+  private int sourceNodeIdx;
+  private int gameNodeOffset;
+  private int numGameNodes;
+  private int teamNodeOffset;
+  private int numTeamNodes;
+  private int targetNodeIdx;
+  private int numNodes;
+
   /*
    * @brief Create a baseball division from a specified
    *   filename in the following format:
@@ -110,7 +118,32 @@ public class BaseballElimination {
     // Close scanner.
     sc.close();
 
-    // Determine eliminated teams.
+
+    // Team nodes: Nodes representing each team, hence N nodes.
+    this.numTeamNodes = this.numTeams;
+
+    // Game nodes: Nodes representing games between teams 0-1, 0-2, 0-3, ... not double counting,
+    // hence N*(N-1) nodes
+    this.numGameNodes = this.numTeamNodes * (this.numTeamNodes-1) / 2;
+
+    // Source node index is always 0.
+    this.sourceNodeIdx = 0;
+
+    // Game nodes: Nodes representing games between each unique pair of team nodes (not
+    // double counting and omitting diagonal nodes).
+    this.gameNodeOffset = this.sourceNodeIdx + 1;
+
+    // Team nodes: Nodes representing each team in the flow network.
+    this.teamNodeOffset = this.gameNodeOffset + this.numGameNodes;
+
+    // Target node is always the last node.
+    this.targetNodeIdx = this.teamNodeOffset + this.numTeamNodes;
+
+    // Hence we have 2+N*(N-1)/2+N nodes starting from 0, i.e., 0 <= x <= 1+N(N-1)/2+N,
+    // where N is the number of team nodes.
+    this.numNodes = this.targetNodeIdx - this.sourceNodeIdx + 1;
+
+    // Determine the eliminated teams.
     for (int i = 0; i < this.numTeams; ++i) {
 
       // Determine contract of elimination for team i:
@@ -118,20 +151,27 @@ public class BaseballElimination {
       // 1. Check if team is trivially eliminated.
       this.findTrivialCertificateOfElimination(i);
 
-      // 2. Calculate max flow to determine min cut of
-      //  team constituting rest of certificate of elimination.
-      final FlowNetwork fn = createFlowNetwork(i);
+      // 2. Calculate team i's certificate elimination
+      // using a max flow calculation of a graph
+      // consisting of the remaining games.
+      this.findMaxFlowCertificateOfElimination(i);
+    }
+  }
 
-      final FordFulkerson ff = new FordFulkerson(fn, 0, this.numTeams*(this.numTeams-1)/2+this.numTeams+1);
-      for (int j = 0; j < this.numTeams; ++j) {
-        if (i == j) {
-          continue;
-        }
-        if (ff.inCut(this.numTeams*(this.numTeams-1)/2 +1+j)) {
-          this.R[i].add(this.teams[j]);
-        }
+  private void findMaxFlowCertificateOfElimination(int i) {
+
+    // 1. Create flow network for determining if team i
+    // is eliminated.
+    final FlowNetwork fn = this.createFlowNetwork(i);
+
+    // 2. Calculate max flow of division targeted at team i,
+    // collate the teams in the associated min cut and add
+    // to team i's certificate elimination.
+    final FordFulkerson ff = new FordFulkerson(fn,this.sourceNodeIdx,this.targetNodeIdx);
+    for (int j = 0; j < this.numTeams; ++j) {
+      if (ff.inCut(this.teamNodeOffset+j)) {
+        this.R[i].add(this.teams[j]);
       }
-
     }
   }
 
@@ -155,64 +195,36 @@ public class BaseballElimination {
    */
   private FlowNetwork createFlowNetwork(int i) {
 
-    /*
-     * Create the flow network.
-     * Node 0: Source Node
-     * Node 1 <= n <= N*(N-1)/2: Nodes representing games between teams 0-1, 0-2, 0-3, etc (NOT DOUBLE COUNTING)
-     * Node N*(N-1)/2 + 1 <= n <= N*(N-1)/2 + N: Nodes representing each team from 0 to N-1
-     * Node N*(N-1)/2+N+1: Target Node.
-     * Note: N*(N-1)/2+N+2 nodes in total.
-     */
+    final FlowNetwork fn = new FlowNetwork(this.numNodes);
 
-    final FlowNetwork fn = new FlowNetwork(this.numTeams*(this.numTeams-1)/2+this.numTeams+2);
+    int nodeIdx = this.gameNodeOffset;
+    for (int j = 0; j < this.numTeamNodes; ++j) {
+      for (int k = j+1; k < this.numTeamNodes; ++k) {
 
-    int gameNodeIdx = 1;
-    for (int j = 0; j < this.numTeams; ++j) {
-      for (int k = j+1; k < this.numTeams; ++k) {
+        // Add edges from source node to game nodes.
+        fn.addEdge(new FlowEdge(this.sourceNodeIdx, nodeIdx, this.remainingInDivision[j][k], 0.0));
 
-        /*
-         * Add edges from source node to game nodes.
-         */
-        fn.addEdge(new FlowEdge(0, gameNodeIdx, this.remainingInDivision[j][k], 0.0));
-
-        /*
-         * Add edges from game nodes to team nodes
-         */
-        fn.addEdge(new FlowEdge(gameNodeIdx, this.numTeams*(this.numTeams-1)/2 +1+j, Double.POSITIVE_INFINITY, 0.0));
-        fn.addEdge(new FlowEdge(gameNodeIdx, this.numTeams*(this.numTeams-1)/2 +1+k, Double.POSITIVE_INFINITY, 0.0));
-        ++gameNodeIdx;
+        // Add edges from game nodes to team nodes.
+        fn.addEdge(new FlowEdge(nodeIdx, this.teamNodeOffset+j, Double.POSITIVE_INFINITY, 0.0));
+        fn.addEdge(new FlowEdge(nodeIdx, this.teamNodeOffset+k, Double.POSITIVE_INFINITY, 0.0));
+        ++nodeIdx;
       }
     }
 
-    /*
-     * Add edges from team nodes to target node
-     */
-    for (int j = 0; j < this.numTeams; ++j) {
+
+    // Add edges from team nodes to target node.
+    for (int j = 0; j < this.numTeamNodes; ++j) {
       if (i == j) {
-        // Also set edge from team i to target to 0.
-        fn.addEdge(new FlowEdge(this.numTeams*(this.numTeams-1)/2 + 1 + j,
-            this.numTeams*(this.numTeams-1)/2 + this.numTeams + 1,
-            0.0));
+        // Set capacity of FlowEdge from team i to target to 0.0.
+        fn.addEdge(new FlowEdge(this.teamNodeOffset + i, this.targetNodeIdx, 0.0));
       } else {
         // Check team j doesn't trivially eliminate i. If so, then set capacity of edge from team i to target to 0
         final double capacity = this.wins[i] + this.remaining[i] - this.wins[j];
-        fn.addEdge(new FlowEdge(this.numTeams*(this.numTeams-1)/2 + 1 + j,
-                                this.numTeams*(this.numTeams-1)/2 + this.numTeams + 1,
-                                capacity > 0.0 ? capacity : 0.0));
-        }
+        fn.addEdge(new FlowEdge(this.teamNodeOffset + j, this.targetNodeIdx, capacity > 0.0 ? capacity : 0.0));
+      }
     }
 
     return fn;
-  }
-
-  /*
-   * @brief Calculate the max flow for team with index i.
-   * @param i The index of the team to be processed.
-   */
-  private void calculateMaxFlow(int i) {
-
-    final FlowNetwork fn = this.createFlowNetwork(i);
-
   }
 
   /*
