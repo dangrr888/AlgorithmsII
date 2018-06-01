@@ -4,27 +4,30 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class BaseballEliminationTest {
 
-  /*
-   * @brief Test client that reads in a sports division from an
-   *   input file specified in the first CL argument, and prints
-   *   whether each team is mathematically eliminated as well as a
-   *   certificate of elimination for each team that is eliminated.
-   */
-  String testClient(String filename) throws FileNotFoundException {
-	  final String filePath = "C:\\eclipse-workspace\\AlgorithmsII\\Week3\\BaseballElimination\\test\\baseball\\" + filename;
-	  //final String filePath = "//Users//danielcumberbatch//eclipse-workspace//Coursera//AlgorithmsII//Week3//BaseballElimination//test//baseball//" + filename;
-
-    final File f = new File(filePath);
-    if (!f.exists()) {
-      throw new FileNotFoundException("Specified file does not exist.");
+  private String generateExpectedString(String teams[], int[][] coes) {
+    final StringBuilder sb = new StringBuilder();
+    final int numTeams = teams.length;
+    for (int i = 0; i < numTeams; ++i) {
+      if (coes[i] != null) {
+        sb.append(teams[i] + " is eliminated by the subset R = { ");
+        for (int t : coes[i]) {
+          sb.append(teams[t] + " ");
+        }
+        sb.append("}\n");
+      } else {
+        sb.append(teams[i] + " is not eliminated\n");
+      }
     }
+    return sb.toString();
+  }
 
-    final BaseballElimination division = new BaseballElimination(filePath);
-    StringBuilder sb = new StringBuilder();
+  private String generateActualString(BaseballElimination division) {
+    final StringBuilder sb = new StringBuilder();
     for (String team : division.teams()) {
       if (division.isEliminated(team)) {
         sb.append(team + " is eliminated by the subset R = { ");
@@ -33,10 +36,28 @@ class BaseballEliminationTest {
         }
         sb.append("}\n");
       } else {
-        sb.append(team + " is not eliminated.\n");
+        sb.append(team + " is not eliminated\n");
       }
     }
     return sb.toString();
+  }
+
+  /*
+   * @brief Test client that reads in a sports division from an
+   *   input file specified in the first CL argument, and prints
+   *   whether each team is mathematically eliminated as well as a
+   *   certificate of elimination for each team that is eliminated.
+   */
+  String testClient(String filename) throws FileNotFoundException {
+	  final String filePath = "//Users//danielcumberbatch//eclipse-workspace//Coursera//AlgorithmsII//Week3//BaseballElimination//test//baseball//" + filename;
+
+    final File f = new File(filePath);
+    if (!f.exists()) {
+      throw new FileNotFoundException("Specified file does not exist.");
+    }
+
+    final BaseballElimination division = new BaseballElimination(filePath);
+    return this.generateActualString(division);
   }
 
   @Test
@@ -50,38 +71,31 @@ class BaseballEliminationTest {
   @Test
   void test4() throws FileNotFoundException {
     final String actual = this.testClient("teams4.txt");
-    final String expected =
-        "Atlanta is not eliminated.\n" +
-        "Philadelphia is eliminated by the subset R = { Atlanta New_York }\n" +
-        "New_York is not eliminated.\n" +
-        "Montreal is eliminated by the subset R = { Atlanta }\n";
+    final String[] teams = { "Atlanta", "Philadelphia", "New_York", "Montreal" };
+    final int[][] coes = { null, {0, 2}, null, {0} };
+    final String expected = this.generateExpectedString(teams, coes);
     assertEquals(actual, expected);
   }
 
-  /*
   @Test
   void test4b() throws FileNotFoundException {
     final String actual = this.testClient("teams4b.txt");
-    final String expected =
-        "Gryffindor is not eliminated\n" +
-        "Hufflepuff is not eliminated\n" +
-        "Ravenclaw is not eliminated\n" +
-        "Slytherin is not eliminated\n";
+    final String[] teams = { "Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin" };
+    final int[][] coes = { null, {0}, {0}, {0} };
+    final String expected = this.generateExpectedString(teams, coes);
     assertEquals(actual, expected);
   }
 
   @Test
   void test5() throws FileNotFoundException {
     final String actual = this.testClient("teams5.txt");
-    final String expected =
-      "New_York is not eliminated\n" +
-      "Baltimore is not eliminated\n" +
-      "Boston is not eliminated\n" +
-      "Toronto is not eliminated\n" +
-      "Detroit is eliminated by the subset R = { New_York Baltimore Boston Toronto }\n";
+    final String[] teams = { "New_York", "Baltimore", "Boston", "Toronto", "Detroit" };
+    final int[][] coes = { null, null, null, null, {0, 1, 2, 3} };
+    final String expected = this.generateExpectedString(teams, coes);
     assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test5a() throws FileNotFoundException {
     final String actual = this.testClient("teams5a.txt");
@@ -94,6 +108,7 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test5b() throws FileNotFoundException {
     final String actual = this.testClient("teams5b.txt");
@@ -106,6 +121,7 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test5c() throws FileNotFoundException {
     final String actual = this.testClient("teams5c.txt");
@@ -119,6 +135,7 @@ class BaseballEliminationTest {
   }
 
 
+  @Disabled
   @Test
   void test7() throws FileNotFoundException {
     final String actual = this.testClient("teams7.txt");
@@ -134,6 +151,7 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test8() throws FileNotFoundException {
     final String actual = this.testClient("teams8.txt");
@@ -149,6 +167,7 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test10() throws FileNotFoundException {
     final String actual = this.testClient("teams10.txt");
@@ -166,6 +185,7 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test12() throws FileNotFoundException {
     final String actual = this.testClient("teams12.txt");
@@ -185,6 +205,7 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test12_allgames() throws FileNotFoundException {
     final String actual = this.testClient("teams12-allgames.txt");
@@ -204,6 +225,7 @@ class BaseballEliminationTest {
       assertEquals(actual, expected);
     }
 
+  @Disabled
   @Test
   void test24() throws FileNotFoundException {
     final String actual = this.testClient("teams24.txt");
@@ -236,6 +258,7 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test29() throws FileNotFoundException {
     final String actual = this.testClient("teams29.txt");
@@ -272,6 +295,7 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test30() throws FileNotFoundException {
     final String actual = this.testClient("teams30.txt");
@@ -309,6 +333,7 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test32() throws FileNotFoundException {
     final String actual = this.testClient("teams32.txt");
@@ -348,6 +373,7 @@ class BaseballEliminationTest {
       assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test36() throws FileNotFoundException {
     final String actual = this.testClient("teams36.txt");
@@ -391,6 +417,7 @@ class BaseballEliminationTest {
       assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test42() throws FileNotFoundException {
     final String actual = this.testClient("teams42.txt");
@@ -440,6 +467,7 @@ class BaseballEliminationTest {
       assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test48() throws FileNotFoundException {
     final String actual = this.testClient("teams48.txt");
@@ -495,6 +523,7 @@ class BaseballEliminationTest {
       assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test50() throws FileNotFoundException {
     final String actual = this.testClient("teams50.txt");
@@ -552,6 +581,7 @@ class BaseballEliminationTest {
         assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test54() throws FileNotFoundException {
     final String actual = this.testClient("teams54.txt");
@@ -613,6 +643,7 @@ class BaseballEliminationTest {
       assertEquals(actual, expected);
   }
 
+  @Disabled
   @Test
   void test60() throws FileNotFoundException {
     final String actual = this.testClient("teams60.txt");
@@ -679,5 +710,4 @@ class BaseballEliminationTest {
       "Team59 is not eliminated\n";
       assertEquals(actual, expected);
   }
-*/
 }

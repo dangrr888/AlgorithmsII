@@ -1,11 +1,12 @@
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Stack;
 
 import edu.princeton.cs.algs4.FlowEdge;
 import edu.princeton.cs.algs4.FlowNetwork;
 import edu.princeton.cs.algs4.FordFulkerson;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.MinPQ;
+import edu.princeton.cs.algs4.Queue;
 
 public class BaseballElimination {
 
@@ -14,7 +15,7 @@ public class BaseballElimination {
 
   // Array of sets of teams constituting the
   // certificate of elimination for each team.
-  private final HashSet<String>[] R;
+  private final MinPQ<Integer>[] R;
 
   private final int numTeams;
   private final String[] teams;
@@ -86,9 +87,9 @@ public class BaseballElimination {
 
     this.map = new HashMap<String, Integer>();
 
-    this.R = (HashSet<String>[]) new HashSet[this.numTeams];
+    this.R = (MinPQ<Integer>[]) new MinPQ[this.numTeams];
     for (int i = 0; i < this.numTeams; ++i) {
-      this.R[i] = new HashSet<String>();
+      this.R[i] = new MinPQ<Integer>();
     }
 
     this.teams = new String[this.numTeams];
@@ -174,7 +175,7 @@ public class BaseballElimination {
     final FordFulkerson ff = new FordFulkerson(fn,this.sourceNodeIdx,this.targetNodeIdx);
     for (int j = 0; j < this.numTeams; ++j) {
       if (ff.inCut(this.teamNodeOffset+j) && i != j) {
-        this.R[i].add(this.teams[j]);
+        this.R[i].insert(j);
       }
     }
   }
@@ -183,7 +184,7 @@ public class BaseballElimination {
     boolean found = false;
     for (int j = 0; j < this.numTeams; ++j) {
       if (this.isTriviallyEliminatedBy(i, j)) {
-        this.R[i].add(this.teams[j]);
+        this.R[i].insert(j);
         found = true;
       }
     }
@@ -352,6 +353,11 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
-    return this.R[this.teamIndex(team)];
+    final Queue<String> q = new Queue<String>();
+    for (int i : this.R[this.teamIndex(team)]) {
+      q.enqueue(this.teams[i]);
+    }
+
+    return q;
   }
 }
