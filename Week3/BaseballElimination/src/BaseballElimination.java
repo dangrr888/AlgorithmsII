@@ -65,7 +65,6 @@ public class BaseballElimination {
    *
    * @param filename The specified filename.
    */
-  @SuppressWarnings("unchecked")
   public BaseballElimination(String filename) {
 
     // Check input.
