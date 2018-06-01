@@ -15,7 +15,8 @@ class BaseballEliminationTest {
    *   certificate of elimination for each team that is eliminated.
    */
   String testClient(String filename) throws FileNotFoundException {
-    final String filePath = "//Users//danielcumberbatch//eclipse-workspace//Coursera//AlgorithmsII//Week3//BaseballElimination//test//baseball//" + filename;
+	  final String filePath = "C:\\eclipse-workspace\\AlgorithmsII\\Week3\\BaseballElimination\\test\\baseball\\" + filename;
+	  //final String filePath = "//Users//danielcumberbatch//eclipse-workspace//Coursera//AlgorithmsII//Week3//BaseballElimination//test//baseball//" + filename;
 
     final File f = new File(filePath);
     if (!f.exists()) {
@@ -26,7 +27,7 @@ class BaseballEliminationTest {
     StringBuilder sb = new StringBuilder();
     for (String team : division.teams()) {
       if (division.isEliminated(team)) {
-        sb.append(team + " is eliminated by the subset R = {");
+        sb.append(team + " is eliminated by the subset R = { ");
         for (String r : division.certificateOfElimination(team)) {
           sb.append(r + " ");
         }
@@ -50,9 +51,9 @@ class BaseballEliminationTest {
   void test4() throws FileNotFoundException {
     final String actual = this.testClient("teams4.txt");
     final String expected =
-        "Atlanta is not eliminated\n" +
+        "Atlanta is not eliminated.\n" +
         "Philadelphia is eliminated by the subset R = { Atlanta New_York }\n" +
-        "New_York is not eliminated\n" +
+        "New_York is not eliminated.\n" +
         "Montreal is eliminated by the subset R = { Atlanta }\n";
     assertEquals(actual, expected);
   }
