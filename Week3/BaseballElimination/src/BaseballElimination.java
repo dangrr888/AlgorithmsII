@@ -15,7 +15,7 @@ public class BaseballElimination {
 
   // Array of sets of teams constituting the
   // certificate of elimination for each team.
-  private final MinPQ<Integer>[] R;
+  private final MinPQ<Integer>[] coe;
 
   private final int numTeams;
   private final String[] teams;
@@ -29,13 +29,12 @@ public class BaseballElimination {
   // in the target division.
   private final int[][] remainingInDivision;
 
-  private int sourceNodeIdx;
-  private int gameNodeOffset;
-  private int numGameNodes;
-  private int teamNodeOffset;
-  private int numTeamNodes;
-  private int targetNodeIdx;
-  private int numNodes;
+  private final int sourceNodeIdx;
+  private final int gameNodeOffset;
+  private final int teamNodeOffset;
+  private final int numTeamNodes;
+  private final int targetNodeIdx;
+  private final int numNodes;
 
   /*
    * @brief Create a baseball division from a specified
@@ -86,9 +85,9 @@ public class BaseballElimination {
 
     this.map = new HashMap<String, Integer>();
 
-    this.R = (MinPQ<Integer>[]) new MinPQ[this.numTeams];
+    this.coe = (MinPQ<Integer>[]) new MinPQ[this.numTeams];
     for (int i = 0; i < this.numTeams; ++i) {
-      this.R[i] = new MinPQ<Integer>();
+      this.coe[i] = new MinPQ<Integer>();
     }
 
     this.teams = new String[this.numTeams];
@@ -123,7 +122,7 @@ public class BaseballElimination {
 
     // Game nodes: Nodes representing games between teams 0-1, 0-2, 0-3, ... not double counting,
     // hence N*(N-1) nodes
-    this.numGameNodes = this.numTeamNodes * (this.numTeamNodes-1) / 2;
+    final int numGameNodes = this.numTeamNodes * (this.numTeamNodes-1) / 2;
 
     // Source node index is always 0.
     this.sourceNodeIdx = 0;
@@ -133,7 +132,7 @@ public class BaseballElimination {
     this.gameNodeOffset = this.sourceNodeIdx + 1;
 
     // Team nodes: Nodes representing each team in the flow network.
-    this.teamNodeOffset = this.gameNodeOffset + this.numGameNodes;
+    this.teamNodeOffset = this.gameNodeOffset + numGameNodes;
 
     // Target node is always the last node.
     this.targetNodeIdx = this.teamNodeOffset + this.numTeamNodes;
@@ -158,6 +157,15 @@ public class BaseballElimination {
     }
   }
 
+  private boolean isValidTeam(String team) {
+    for (String t : this.teams) {
+      if (t.equals(team)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private int delta(int i, int j) {
     return this.wins[i] + this.remaining[i] - this.wins[j];
   }
@@ -171,10 +179,10 @@ public class BaseballElimination {
     // 2. Calculate max flow of division targeted at team i,
     // collate the teams in the associated min cut and add
     // to team i's certificate elimination.
-    final FordFulkerson ff = new FordFulkerson(fn,this.sourceNodeIdx,this.targetNodeIdx);
+    final FordFulkerson ff = new FordFulkerson(fn, this.sourceNodeIdx, this.targetNodeIdx);
     for (int j = 0; j < this.numTeams; ++j) {
       if (ff.inCut(this.teamNodeOffset+j) && i != j) {
-        this.R[i].insert(j);
+        this.coe[i].insert(j);
       }
     }
   }
@@ -183,7 +191,7 @@ public class BaseballElimination {
     boolean found = false;
     for (int j = 0; j < this.numTeams; ++j) {
       if (this.isTriviallyEliminatedBy(i, j)) {
-        this.R[i].insert(j);
+        this.coe[i].insert(j);
         found = true;
       }
     }
@@ -276,6 +284,10 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
+    if (!this.isValidTeam(team)) {
+      throw new java.lang.IllegalArgumentException("Unknown team.");
+    }
+
     return this.wins[this.teamIndex(team)];
   }
 
@@ -290,6 +302,10 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
+    if (!this.isValidTeam(team)) {
+      throw new java.lang.IllegalArgumentException("Unknown team.");
+    }
+
     return this.losses[this.teamIndex(team)];
   }
 
@@ -302,6 +318,10 @@ public class BaseballElimination {
   public int remaining(String team) {
     if (team == null) {
       throw new IllegalArgumentException("Null argument.");
+    }
+
+    if (!this.isValidTeam(team)) {
+      throw new java.lang.IllegalArgumentException("Unknown team.");
     }
 
     return this.remaining[this.teamIndex(team)];
@@ -324,6 +344,14 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
+    if (!this.isValidTeam(team1)) {
+      throw new java.lang.IllegalArgumentException("Unknown team.");
+    }
+
+    if (!this.isValidTeam(team2)) {
+      throw new java.lang.IllegalArgumentException("Unknown team.");
+    }
+
     return this.remainingInDivision[this.teamIndex(team1)][this.teamIndex(team2)];
   }
 
@@ -333,11 +361,16 @@ public class BaseballElimination {
    * @return If the specified team is eliminated.
    */
   public boolean isEliminated(String team) {
+
     if (team == null) {
       throw new IllegalArgumentException("Null argument.");
     }
 
-    return !this.R[this.teamIndex(team)].isEmpty();
+    if (!this.isValidTeam(team)) {
+      throw new java.lang.IllegalArgumentException("Unknown team.");
+    }
+
+    return !this.coe[this.teamIndex(team)].isEmpty();
   }
 
   /*
@@ -352,8 +385,16 @@ public class BaseballElimination {
       throw new IllegalArgumentException("Null argument.");
     }
 
+    if (!this.isValidTeam(team)) {
+      throw new java.lang.IllegalArgumentException("Unknown team.");
+    }
+
+    if (!this.isEliminated(team)) {
+      return null;
+    }
+
     final Queue<String> q = new Queue<String>();
-    for (int i : this.R[this.teamIndex(team)]) {
+    for (int i : this.coe[this.teamIndex(team)]) {
       q.enqueue(this.teams[i]);
     }
 
