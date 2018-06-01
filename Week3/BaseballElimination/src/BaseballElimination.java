@@ -1,11 +1,11 @@
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Scanner;
 import java.util.Stack;
 
 import edu.princeton.cs.algs4.FlowEdge;
 import edu.princeton.cs.algs4.FlowNetwork;
 import edu.princeton.cs.algs4.FordFulkerson;
+import edu.princeton.cs.algs4.In;
 
 public class BaseballElimination {
 
@@ -73,12 +73,12 @@ public class BaseballElimination {
     }
 
     // Initialize scanner
-    final Scanner sc = new Scanner(filename);
+    final In in = new In(filename);
 
     // Number of teams
-    this.numTeams = sc.nextInt();
+    this.numTeams = in.readInt();
     if (this.numTeams < 1) {
-      sc.close();
+      in.close();
       throw new IllegalArgumentException("#teams must be >= 1");
     }
 
@@ -103,21 +103,20 @@ public class BaseballElimination {
 
     // Read data for each team.
     for (int i = 0; i < this.numTeams; ++i) {
-      this.teams[i] = sc.next();
-      this.wins[i] = sc.nextInt();
-      this.losses[i] = sc.nextInt();
+      this.teams[i] = in.readString();
+      this.wins[i] = in.readInt();
+      this.losses[i] = in.readInt();
 
-      this.remaining[i] = sc.nextInt();
+      this.remaining[i] = in.readInt();
       for (int j = 0; j < this.numTeams; ++j) {
-        this.remainingInDivision[i][j] = sc.nextInt();
+        this.remainingInDivision[i][j] = in.readInt();
       }
 
       this.map.put(this.teams[i], i);
     }
 
     // Close scanner.
-    sc.close();
-
+    in.close();
 
     // Team nodes: Nodes representing each team, hence N nodes.
     this.numTeamNodes = this.numTeams;
@@ -149,13 +148,18 @@ public class BaseballElimination {
       // Determine contract of elimination for team i:
 
       // 1. Check if team is trivially eliminated.
-      this.findTrivialCertificateOfElimination(i);
+      if (!this.findTrivialCertificateOfElimination(i)) {
+        // 2. Calculate team i's certificate elimination
+        // using a max flow calculation of a graph
+        // consisting of the remaining games.
+        this.findMaxFlowCertificateOfElimination(i);
 
-      // 2. Calculate team i's certificate elimination
-      // using a max flow calculation of a graph
-      // consisting of the remaining games.
-      this.findMaxFlowCertificateOfElimination(i);
+      }
     }
+  }
+
+  private int delta(int i, int j) {
+    return this.wins[i] + this.remaining[i] - this.wins[j];
   }
 
   private void findMaxFlowCertificateOfElimination(int i) {
@@ -169,22 +173,26 @@ public class BaseballElimination {
     // to team i's certificate elimination.
     final FordFulkerson ff = new FordFulkerson(fn,this.sourceNodeIdx,this.targetNodeIdx);
     for (int j = 0; j < this.numTeams; ++j) {
-      if (ff.inCut(this.teamNodeOffset+j)) {
+      if (ff.inCut(this.teamNodeOffset+j) && i != j) {
         this.R[i].add(this.teams[j]);
       }
     }
   }
 
-  private void findTrivialCertificateOfElimination(int i) {
+  private boolean findTrivialCertificateOfElimination(int i) {
+    boolean found = false;
     for (int j = 0; j < this.numTeams; ++j) {
       if (this.isTriviallyEliminatedBy(i, j)) {
         this.R[i].add(this.teams[j]);
+        found = true;
       }
     }
+    return found;
   }
 
+  // Is team i trivially eliminated by team j
   private boolean isTriviallyEliminatedBy(int i, int j) {
-    return this.wins[i] + this.remaining[i] < this.wins[j];
+    return this.delta(i, j) < 0;
   }
 
   /*
@@ -200,13 +208,14 @@ public class BaseballElimination {
     int nodeIdx = this.gameNodeOffset;
     for (int j = 0; j < this.numTeamNodes; ++j) {
       for (int k = j+1; k < this.numTeamNodes; ++k) {
+        if (j != i && k != i) {
+          // Add edges from source node to game nodes.
+          fn.addEdge(new FlowEdge(this.sourceNodeIdx, nodeIdx, this.remainingInDivision[j][k], 0.0));
 
-        // Add edges from source node to game nodes.
-        fn.addEdge(new FlowEdge(this.sourceNodeIdx, nodeIdx, this.remainingInDivision[j][k], 0.0));
-
-        // Add edges from game nodes to team nodes.
-        fn.addEdge(new FlowEdge(nodeIdx, this.teamNodeOffset+j, Double.POSITIVE_INFINITY, 0.0));
-        fn.addEdge(new FlowEdge(nodeIdx, this.teamNodeOffset+k, Double.POSITIVE_INFINITY, 0.0));
+          // Add edges from game nodes to team nodes.
+          fn.addEdge(new FlowEdge(nodeIdx, this.teamNodeOffset+j, Double.POSITIVE_INFINITY, 0.0));
+          fn.addEdge(new FlowEdge(nodeIdx, this.teamNodeOffset+k, Double.POSITIVE_INFINITY, 0.0));
+        }
         ++nodeIdx;
       }
     }
@@ -214,12 +223,9 @@ public class BaseballElimination {
 
     // Add edges from team nodes to target node.
     for (int j = 0; j < this.numTeamNodes; ++j) {
-      if (i == j) {
-        // Set capacity of FlowEdge from team i to target to 0.0.
-        fn.addEdge(new FlowEdge(this.teamNodeOffset + i, this.targetNodeIdx, 0.0));
-      } else {
+      if (j != i) {
         // Check team j doesn't trivially eliminate i. If so, then set capacity of edge from team i to target to 0
-        final double capacity = this.wins[i] + this.remaining[i] - this.wins[j];
+        final double capacity = this.delta(i, j);
         fn.addEdge(new FlowEdge(this.teamNodeOffset + j, this.targetNodeIdx, capacity > 0.0 ? capacity : 0.0));
       }
     }

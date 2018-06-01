@@ -15,7 +15,7 @@ class BaseballEliminationTest {
    *   certificate of elimination for each team that is eliminated.
    */
   String testClient(String filename) throws FileNotFoundException {
-    final String filePath = "/Users/danielcumberbatch/eclipse-workspace/Coursera/AlgorithmsII/Week3/BaseballElimination/test/baseball/" + filename;
+    final String filePath = "//Users//danielcumberbatch//eclipse-workspace//Coursera//AlgorithmsII//Week3//BaseballElimination//test//baseball//" + filename;
 
     final File f = new File(filePath);
     if (!f.exists()) {
@@ -57,6 +57,7 @@ class BaseballEliminationTest {
     assertEquals(actual, expected);
   }
 
+  /*
   @Test
   void test4b() throws FileNotFoundException {
     final String actual = this.testClient("teams4b.txt");
@@ -677,5 +678,5 @@ class BaseballEliminationTest {
       "Team59 is not eliminated\n";
       assertEquals(actual, expected);
   }
-
+*/
 }
