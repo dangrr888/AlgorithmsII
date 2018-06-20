@@ -1,85 +1,91 @@
-public class StringST<Value> {
-	
-	private static int R = 256;
+public class StringST<T>
+{
+	private static final int R = 256;
 	private Node root = new Node();
-		
-	private static class Node {
-		Object val = null;
-		Node[] next = new Node[StringST.R]; 
-	}
 	
-	private Node get(Node n, String key, int d) {
-		if (n == null) {
+	private static class Node {
+		public Object val = null;
+		public Node[] next = new Node[R];
+	}
+
+	private Node get(Node x, String key, int d) {
+		if (x == null) {
 			return null;
 		}
 		
-		if (key.length() == d) {
-			return n;
+		if (d == key.length()) {
+			return x;
 		}
 		
 		final char c = key.charAt(d);
-		return this.get(n.next[c], key, d+1);
+		return this.get(x.next[c], key, d+1);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public Value get(String key) {
-		final Node tmp = this.get(this.root, key, 0);
-		if (tmp == null) {
+	public StringST() {
+	}
+
+	public T get(String key) {
+		final Node x = this.get(this.root, key, 0);
+		if (x == null) {
 			return null;
 		}
-		return (Value)tmp.val;
+		return (T)x.val;
 	}
 	
-	private Node put(Node n, String key, Value val, int d) {
-		if (n == null) {
-			n = new Node();
-		}
+	private Node put(Node x, String key, T val, int d) {
 		
-		if (key.length() == d) {
-			n.val = val;
-		} else {
+		if (d == key.length()) {
+			x.val = val;
+		}
+		else {
 			final char c = key.charAt(d);
-			n.next[c] = this.put(n.next[c], key, val, d+1);
+			if (x.next[c] == null) {
+				x.next[c] = new Node(); 
+			}
+			x.next[c] = this.put(x.next[c], key, val, d+1);
 		}
-		
-		return n;
+		return x;
 	}
 	
- 	public void put(String key, Value val) {
+	public void put(String key, T val) {
 		this.root = this.put(this.root, key, val, 0);
 	}
 	
- 	public boolean contains(String key) {
- 		return this.get(key) != null;
- 	}
- 	
- 	private boolean allNullLinks(Node n) {
- 		for (int i = 0; i < StringST.R; ++i) {
- 			if (n.next[i] != null) {
- 				return false;
- 			}
- 		}
- 		return true;
- 	}
-	private Node delete(Node n, String key, int d) {
-		if (n == null) {
-			return null;
-		}
-		
-		if (key.length() == d) {
-			n.val = null;			
-		}
-
-		if (this.allNullLinks(n)) {
-			return null;
-		}
-		
-		final char c = key.charAt(d);
-		n.next[c] = this.delete(n.next[c], key, d+1);
-		
-		return n;
+	public boolean contains(String key) {
+		return this.get(key) != null;
 	}
-
+	
+	private boolean hasChildren(Node x) {
+		if (x == null) {
+			return false;
+		}
+		for (int i = 0; i < R; ++i) {
+			if (x.next[i] != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+ 	private Node delete(Node x, String key, int d) {
+		if (x == null) {
+			return null;
+		}
+		
+		if (d == key.length()) {
+			x.val = null;
+		} else {
+			final char c = key.charAt(d);
+			x.next[c] = this.delete(x.next[c], key, d+1);
+		}
+		
+		if (!this.hasChildren(x)) {
+			x = null;
+		}
+		
+		return x;
+	}
+	
 	public void delete(String key) {
 		this.root = this.delete(this.root, key, 0);
 	}
