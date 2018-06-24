@@ -204,7 +204,7 @@ public class StringTST<T> {
 			return;
 		}
 		
-		// 1. Add key of current Node
+		// 1. Add key of current Node to ll.
 		ll.add(x.key);
 
 		if (x.val != null) {	
@@ -222,15 +222,21 @@ public class StringTST<T> {
 		}
 		
 		// 3. Traverse left.
+		// NB:// Going left constitutes a mismatch, hence we remove the current Node key from ll since
+		// progressing down this path would indicate a key that does not include it.
 		ll.removeLast();
 		this.inOrderTraversalPrefix(x.next[0], ll, st, usePrefix, prefix, useWildCard, wildCard, useLongestPrefix, longestPrefix);
 		
 		// 4. Traverse middle.
+		// NB:// We add back the Node key since progressing down the middle Node indicates a match
+		// to the search key.
 		ll.add(x.key);
 		this.inOrderTraversalPrefix(x.next[1],ll, st, usePrefix, prefix, useWildCard, wildCard, useLongestPrefix, longestPrefix);
-		ll.removeLast();
 		
 		// 5. Traverse right.
+		// NB:// Going right constitutes a mismatch, hence we remove the current Node key from ll since
+		// progressing down this path would indicate a key that does not include it.
+		ll.removeLast();
 		this.inOrderTraversalPrefix(x.next[2], ll, st, usePrefix, prefix, useWildCard, wildCard, useLongestPrefix, longestPrefix);
 	}
 	
