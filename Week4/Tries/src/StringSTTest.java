@@ -101,4 +101,28 @@ class StringSTTest {
 		assertEquals(al.get(2), "foo");
 		assertEquals(al.get(3), "qux");
 	}
+	
+	@Test
+	void constructTrieAndGetAllKeysWithPrefix() {
+		final StringST<Integer> st = new StringST<Integer>();
+		st.put("she", 0);
+		st.put("sells", 1);
+		st.put("shells", 3);
+		st.put("by", 4);
+		st.put("the", 5);
+		st.put("sea", 6);
+		st.put("shore", 7);
+				
+		// Prefix
+		ArrayList<String> al = new ArrayList<String>();
+
+		for (String key : st.keysWithPrefix("sh")) {
+			al.add(key);
+		}
+		assertEquals(al.size(), 3);
+		assertEquals(al.get(0), "she");
+		assertEquals(al.get(1), "shells");
+		assertEquals(al.get(2), "shore");
+	}
+
 }

@@ -111,4 +111,17 @@ public class StringST<T>
 		this.collect(this.root, "", st);
 		return st;
 	}
+	
+	public Iterable<String> keysWithPrefix(String prefix) {
+		Stack<String> st = new Stack<String>();
+		// Node that terminates on the search string prefix.
+		// Since this is a Trie, all subsequent keys found
+		// in the sub-trie of this Node will have the
+		// desired prefix (unlike a TST).
+		final Node x = this.get(this.root, prefix, 0);
+		this.collect(x, prefix, st);
+		return st;
+	}
+	
+	
 }
