@@ -1,3 +1,5 @@
+import java.util.Stack;
+
 public class StringST<T>
 {
 	private static final int R = 256;
@@ -88,5 +90,25 @@ public class StringST<T>
 	
 	public void delete(String key) {
 		this.root = this.delete(this.root, key, 0);
+	}
+	
+	private void collect(Node x, String prefix, Stack<String> st) {
+		if (x == null) {
+			return;
+		}
+		
+		if (x.val != null) {
+			st.push(prefix);
+		}
+		
+		for(int c = 0; c < StringST.R; ++c) {
+			this.collect(x.next[c], prefix + (char)c, st);
+		}
+	}
+	
+	public Iterable<String> keys() {
+		Stack<String> st = new Stack<String>();
+		this.collect(this.root, "", st);
+		return st;
 	}
 }

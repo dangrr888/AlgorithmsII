@@ -1,5 +1,8 @@
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.Stack;
+
 import org.junit.jupiter.api.Test;
 
 class StringSTTest {
@@ -77,5 +80,25 @@ class StringSTTest {
 
 		st.delete("qux");
 		assertFalse(st.contains("aux"));
+	}
+	
+	@Test
+	void constructTrieAndGetAllKeys() {
+		final StringST<Integer> st = new StringST<Integer>();
+		st.put("foo", 0);
+		st.put("bar", 1);
+		st.put("baz", 2);
+		st.put("qux", 3);
+
+		final ArrayList<String> al = new ArrayList<String>();
+		for (String key : st.keys()) {
+			al.add(key);
+		}
+		
+		assertEquals(al.size(), 4);
+		assertEquals(al.get(0), "bar");
+		assertEquals(al.get(1), "baz");
+		assertEquals(al.get(2), "foo");
+		assertEquals(al.get(3), "qux");
 	}
 }
