@@ -1,7 +1,6 @@
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
-import java.util.Stack;
 
 import org.junit.jupiter.api.Test;
 
@@ -124,5 +123,24 @@ class StringSTTest {
 		assertEquals(al.get(1), "shells");
 		assertEquals(al.get(2), "shore");
 	}
+	
+	@Test
+	void constructTrieAndGetLongestPrefixOf() {
+		final StringST<Integer> st = new StringST<Integer>();
+		st.put("128", 0);
+		st.put("128.112", 0);
+		st.put("128.112.055", 0);
+		st.put("128.112.055.15", 0);
+		st.put("128.112.136", 0);
+		st.put("128.112.155.11", 0);
+		st.put("128.112.155.13", 0);
+		st.put("128.222", 0);
+		st.put("128.222.136", 0);
+
+		assertEquals(st.longestPrefixOf("128.112.136.11"), "128.112.136");
+		assertEquals(st.longestPrefixOf("128.112.100.16"), "128.112");
+		assertEquals(st.longestPrefixOf("128.166.123.45"), "128");		
+	}
+	
 
 }

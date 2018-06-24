@@ -123,5 +123,25 @@ public class StringST<T>
 		return st;
 	}
 	
+	private int search(Node x, String query, int d, int length) {
+		if (x == null) {
+			return length;
+		}
+		
+		if (x.val != null) {
+			length = d;
+		}
+		
+		if (d == query.length()) {
+			return length;
+		}
+				
+		final char c = query.charAt(d);
+		return this.search(x.next[c], query, d+1, length);		
+	}
 	
+	public String longestPrefixOf(String query) {
+		final int length = this.search(this.root, query, 0, 0);
+		return query.substring(0, length);
+	}
 }
