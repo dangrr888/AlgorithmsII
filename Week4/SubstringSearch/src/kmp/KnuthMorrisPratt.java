@@ -1,4 +1,4 @@
-
+package kmp;
 public class KnuthMorrisPratt {
 
 	static final int R = 3;
