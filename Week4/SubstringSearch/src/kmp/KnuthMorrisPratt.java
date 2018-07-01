@@ -21,7 +21,7 @@ public class KnuthMorrisPratt {
 		dfa[KnuthMorrisPratt.charAt(pat, 0)][0] = 1;
 		for (int X = 0, j = 1; j < M; ++j) {
 			for (int c = 0; c < KnuthMorrisPratt.R; ++c) {
-				dfa[c][KnuthMorrisPratt.charAt(pat, j)] = dfa[c][X];
+				dfa[c][j] = dfa[c][X]; // mismatch transition.
 			}
 			dfa[KnuthMorrisPratt.charAt(pat, j)][j] = j+1;
 			X = dfa[KnuthMorrisPratt.charAt(pat, j)][X];

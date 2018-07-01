@@ -37,7 +37,7 @@ class KnuthMorrisPrattTest {
 		final String text = "AABACAABABACAA";
 		final String pat = text;
 		
-		assertEquals(KnuthMorrisPratt.search(text, pat), 14);
+		assertEquals(KnuthMorrisPratt.search(text, pat), 0);
 	}
 
 	@Test
@@ -46,6 +46,6 @@ class KnuthMorrisPrattTest {
 		final String text = "AABACAABABACAA";
 		final String pat = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 		
-		assertEquals(KnuthMorrisPratt.search(text, pat), -32);
+		assertEquals(KnuthMorrisPratt.search(text, pat), 14);
 	}
 }
