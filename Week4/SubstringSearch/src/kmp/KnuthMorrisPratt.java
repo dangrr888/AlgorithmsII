@@ -17,7 +17,6 @@ public class KnuthMorrisPratt {
 			}
 		}
 		
-		dfa[pat.charAt(0)-offset][0] = 1;
 		dfa[KnuthMorrisPratt.charAt(pat, 0)][0] = 1;
 		for (int X = 0, j = 1; j < M; ++j) {
 			for (int c = 0; c < KnuthMorrisPratt.R; ++c) {
