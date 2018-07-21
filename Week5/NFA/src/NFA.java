@@ -1,4 +1,3 @@
-
 public class NFA {
 
 	private char[] re;
@@ -53,24 +52,61 @@ public class NFA {
 	}
 	
 	public Digraph buildEpsilontransitionDigraph() {
+		
 		final Digraph G = new Digraph(this.M+1); // +1 for accept state?
 		final Stack<Integer> ops = new Stack<Integer>();
+		
 		for (int i = 0; i < M; ++i) {
 			
-			int lp = i;
+			int lp = -1;
+			int orOp = -1;
+			int rp = -1;
+			int asterix = -1;
+			int character = -1;
 			
 			if (this.re[i] == '(' || this.re[i] == '|') {
 				ops.push(i);
 			} else if (this.re[i] == ')') {
 				int op = ops.pop();
 				if (op == '|') {
+					orOp = op;
 					lp = ops.pop();
 				}
+			} else if (this.re[i] == '*') {
+				G.addEdge(i, i+1);
+			} else {
+				// character found
+				character = i;
 			}
 			
+			// Look ahead for asterix
+			if (i < M-1 && this.re[i+1] == '*') {
+				asterix = i+1;
+			}
 			
+			// Add transitions
+			if (character != -1) {				
+				if (asterix != -1) {
+					G.addEdge(i, i+1);
+					G.addEdge(i+1, i);
+				}
+			} else if (rp != -1) {
+				
+				G.addEdge(lp, lp+1);
+				G.addEdge(rp, rp+1);
+				
+				if (orOp != -1) {
+					G.addEdge(lp, orOp+1);
+					G.addEdge(orOp+1, rp);
+				}
+				
+				if (asterix != -1) {
+					G.addEdge(lp, asterix);
+					G.addEdge(asterix, lp);
+				}
+			}
 		}
 		
-		
+		return G;
 	}
 }
