@@ -44,7 +44,6 @@ public class MoveToFront {
 	    		} else {
 	    			BinaryStdOut.write(0, MoveToFront.W);
 	    		}
-	    		
 	    	}
 	    	
 	    	short count = 1;
@@ -144,7 +143,7 @@ public class MoveToFront {
     // if args[0] is '-', apply move-to-front encoding
     // if args[0] is '+', apply move-to-front decoding
     public static void main(String[] args) {
-    	final String usage = "Usage: <program name> <{+|-}>\n";
+    	final String usage = "Usage: MoveToFront <{+|-}>\n";
     	if (args.length != 1) {
     		BinaryStdOut.write(usage);
     		throw new IllegalArgumentException("Must only provide one argument, " + args.length + " provided.");
