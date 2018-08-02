@@ -106,9 +106,9 @@ public class MoveToFront {
 	    	
 	    	int i;
 	    	if (DEBUG) {
-	    		i = BinaryStdIn.readInt(MoveToFront.W);
-	    	} else {
 	    		i = MoveToFront.convertHexToShort(sc.next());
+	    	} else {
+	    		i = BinaryStdIn.readInt(MoveToFront.W);
 	    	}
 	    	
 	    	if (i == 0) {
